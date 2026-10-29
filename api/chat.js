@@ -46,22 +46,28 @@ export default async function handler(req, res) {
   while (merged.length && merged[0].role !== 'user') merged.shift();
   if (!merged.length || merged[merged.length - 1].role !== 'user') return res.status(400).json({ error: 'bad messages' });
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  let r;
-  try {
-    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM }] },
-        contents: merged.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
-        generationConfig: { maxOutputTokens: 900, temperature: 0.9 },
-      }),
-    });
-  } catch { return res.status(502).json({ error: 'upstream unreachable' }); }
-
-  if (r.status === 429) return res.status(429).json({ error: 'rate limited' });
-  if (!r.ok) return res.status(502).json({ error: 'upstream error' });
+  const models = [process.env.GEMINI_MODEL, 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash'].filter(Boolean);
+  let r, detail = '';
+  for (const model of models) {
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: merged.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
+          generationConfig: { maxOutputTokens: 900, temperature: 0.9 },
+        }),
+      });
+    } catch (e) { return res.status(502).json({ error: 'upstream unreachable', detail: String(e).slice(0, 200) }); }
+    if (r.ok) break;
+    let msg = ''; try { msg = (await r.json())?.error?.message || ''; } catch {}
+    detail = `${model}: HTTP ${r.status} ${msg}`.slice(0, 300);
+    console.error('Gemini error', detail);
+    if (r.status !== 404) break; // only try the next model if this one was not found
+  }
+  if (r.status === 429) return res.status(429).json({ error: 'rate limited', detail });
+  if (!r.ok) return res.status(502).json({ error: 'upstream error', detail });
   const data = await r.json().catch(() => null);
   const text = (data?.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
   if (!text) return res.status(200).json({ text: "I'm not able to answer that one. If you are in danger or thinking of hurting yourself, please contact your local emergency number or a free helpline right now." });
