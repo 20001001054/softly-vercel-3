@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Softly: a calm, bright wellbeing companion with gentle check-ins, a mood log, calm games and an AI companion.">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Softly</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Fraunces:ital,opsz,wght@1,9..144,400..600&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one airy white column. Soft pastel light bleeds in from the page corners, cards are plain white with hairline borders,
+   and the only decoration is glow: a floating orb, glowing buttons, glowing selected states. Light theme only, on purpose. */
+:root{
+  --font-display:'Fredoka',system-ui,sans-serif;
+  --font-quote:'Fraunces',Georgia,'Times New Roman',serif;
+  --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bg:#F7FAFF; --surface:#FFFFFF; --surface2:#EEF3FC; --ink:#1F2A44; --muted:#66728F; --line:#E3EAF7;
+  --accent:#2F6BFF; --accent-ink:#FFFFFF; --soft:#E8F0FF; --warm:#FFE6D6; --lav:#ECE6FF; --coral:#FF7A8A;
+  --btn-a:#3B6BFF; --btn-b:#8B5CFF; --btn-ink:#FFFFFF;
+  --g-blue:#8AB8FF; --g-pink:#FFB3D9; --g-mint:#9BF0D6; --g-yellow:#FFE08A; --g-lav:#C8B8FF;
+  --alert-bg:#FFEDEA; --alert-ink:#8A3A30; --face:#1F2A44;
+  --m1:#A9B6FF; --m2:#8FD0FF; --m3:#A7EBC6; --m4:#7FEBD0; --m5:#FFE070;
+  --b1:#7FE3D6; --b2:#B7A6FF; --b3:#FFB38F;
+  --period-a:#FFE3C9; --period-b:#FFF3D6;
+  --shadow:0 8px 28px rgba(60,100,200,.09);
+  --glow:0 0 0 4px rgba(47,107,255,.14),0 0 22px rgba(47,107,255,.28);
+  --px:0; --py:0;
+  color-scheme:light;
+}
+:root[data-period="morning"]{--period-a:#FFC49A;--period-b:#FFE58F}
+:root[data-period="noon"]{--period-a:#9FD0FF;--period-b:#A8F0D6}
+:root[data-period="evening"]{--period-a:#C7B2FF;--period-b:#FFB3D6}
+:root[data-period="night"]{--period-a:#A3B2FF;--period-b:#D0AEFF}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--font-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3,p{margin:0}
+h2{font-family:var(--font-display);font-weight:600;font-size:1.3rem;line-height:1.25;text-wrap:balance}
+h3{font-family:var(--font-display);font-weight:600;font-size:1.06rem;line-height:1.3}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+textarea,input,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:10px}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.cap{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+
+/* soft light from the corners */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:aur 24s ease-in-out infinite alternate}
+.bg i:nth-child(1){width:62vmax;height:62vmax;left:-18vmax;top:-22vmax;background:#7FB0FF}
+.bg i:nth-child(2){width:54vmax;height:54vmax;right:-20vmax;top:-12vmax;background:#FF9AD5;animation-duration:30s;animation-delay:-9s}
+.bg i:nth-child(3){width:60vmax;height:60vmax;left:10vmax;bottom:-30vmax;background:#8FF0D0;animation-duration:27s;animation-delay:-14s}
+.bg i:nth-child(4){width:40vmax;height:40vmax;right:-10vmax;bottom:-12vmax;background:#FFD27F;opacity:.4;animation-duration:33s;animation-delay:-4s}
+@keyframes aur{from{transform:translate(0,0) scale(1)}to{transform:translate(7vmax,5vmax) scale(1.14)}}
+
+.app{max-width:640px;margin:0 auto;padding-bottom:130px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}
+.top::before{content:"";position:absolute;top:0;bottom:-14px;left:calc(50% - 50vw);right:calc(50% - 50vw);z-index:-1;background:linear-gradient(color-mix(in srgb,var(--bg) 88%,transparent) 55%,transparent);pointer-events:none}
+/* wordmark */
+.brand{border:0;background:none;padding:0;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:400;font-size:1.75rem;line-height:1;color:var(--ink);letter-spacing:.04em}
+.brand b{font-weight:400;background:linear-gradient(90deg,#3B6BFF,#9B6BFF 55%,#FF7EC7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
+.mark{width:36px;height:36px;flex:none;filter:drop-shadow(0 0 9px rgba(120,150,255,.75));transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.brand:hover .mark{transform:scale(1.12)}
+.brand.spin .mark{animation:glowpulse .9s ease}
+@keyframes glowpulse{40%{transform:scale(1.3);filter:drop-shadow(0 0 18px rgba(255,150,220,.95))}}
+.sos{border:1px solid #FFD0DC;background:#fff;color:#B03A5B;padding:9px 16px;border-radius:999px;font-weight:800;font-size:.9rem;display:flex;gap:8px;align-items:center;box-shadow:0 0 0 4px rgba(255,150,180,.14),0 6px 20px rgba(255,120,160,.26)}
+.sos svg{width:16px;height:16px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:20px;box-shadow:var(--shadow);min-width:0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.tilt{transition:transform .25s ease,box-shadow .25s ease}
+.tilt:hover{transform:translateY(-3px)}
+.tilt:active{transform:scale(.98)}
+
+.hero{position:relative;border-radius:32px;overflow:hidden;color:var(--ink);border:0;box-shadow:0 14px 44px rgba(120,110,255,.22);
+  background:radial-gradient(120% 90% at 50% -8%,color-mix(in srgb,var(--period-a) 85%,#fff),color-mix(in srgb,var(--period-b) 50%,#fff) 58%,#fff 84%)}
+.hero::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:linear-gradient(135deg,#7FB0FF,#FF9AD5,#8FF0D0,#FFD27F);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:.9}
+.card,.tile{position:relative}
+.card::before,.tile::before,.hero::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,-30%),rgba(130,150,255,.2),transparent 62%)}
+.card:hover::before,.tile:hover::before,.hero:hover::before{opacity:1}
+.orbwrap{position:relative;height:196px;display:grid;place-items:center;padding-top:14px}
+.orbpos{transform:translate(calc(var(--px)*16px),calc(var(--py)*10px));transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.orbbtn{position:relative;border:0;background:none;padding:0;width:112px;height:112px;border-radius:50%;display:block}
+.orb-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff 0,#C6E4FF 34%,#A99BFF 100%);
+  box-shadow:0 0 0 14px rgba(160,200,255,.22),0 0 56px 18px rgba(130,160,255,.6),0 0 120px 44px rgba(255,150,215,.38);animation:floaty 6s ease-in-out infinite}
+.orbbtn.pulse .orb-glow{animation:floaty 6s ease-in-out infinite,burst .8s ease-out}
+.orbbtn i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(150,170,255,.7);opacity:0}
+.orbbtn.pulse i{animation:ring 1s ease-out}
+.orbbtn.pulse i+i{animation-delay:.18s}
+@keyframes floaty{0%,100%{transform:translateY(-6px)}50%{transform:translateY(7px)}}
+@keyframes burst{0%{filter:brightness(1)}30%{filter:brightness(1.25) saturate(1.3);transform:scale(1.18)}100%{filter:none}}
+@keyframes ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(2.4)}}
+.sparks{position:absolute;inset:0;pointer-events:none}
+.sparks i{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px rgba(255,255,255,.9),0 0 18px 5px rgba(150,170,255,.7);animation:tw 4s ease-in-out infinite}
+.sparks i:nth-child(1){left:14%;top:30%}.sparks i:nth-child(2){left:26%;top:62%;animation-delay:-1s;width:4px;height:4px}.sparks i:nth-child(3){left:38%;top:18%;animation-delay:-2s}.sparks i:nth-child(4){left:64%;top:22%;animation-delay:-.5s;width:4px;height:4px}.sparks i:nth-child(5){left:78%;top:52%;animation-delay:-3s}.sparks i:nth-child(6){left:88%;top:26%;animation-delay:-1.500s;width:4px;height:4px}.sparks i:nth-child(7){left:52%;top:72%;animation-delay:-2.500s;width:4px;height:4px}.sparks i:nth-child(8){left:8%;top:68%;animation-delay:-3.500s}
+@keyframes tw{0%,100%{opacity:.15;transform:translateY(0) scale(.7)}50%{opacity:1;transform:translateY(-10px) scale(1.15)}}
+.hint{position:absolute;left:18px;bottom:6px;font-size:.76rem;font-weight:700;color:var(--muted);pointer-events:none}
+.hero-body{padding:4px 22px 22px}
+.hero .greet{font-family:var(--font-display);font-size:1.05rem;font-weight:500;margin-top:2px}
+.quote{font-family:var(--font-quote);font-style:italic;font-weight:500;font-size:clamp(1.6rem,6.2vw,2.15rem);line-height:1.2;margin:12px 0 18px;text-wrap:balance;text-shadow:0 0 28px rgba(255,255,255,.95)}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 15px;font-weight:700;font-size:.9rem;display:inline-flex;gap:7px;align-items:center;transition:transform .2s,box-shadow .2s}
+.iconbtn:hover{transform:translateY(-2px);box-shadow:var(--glow)}
+.iconbtn:disabled{opacity:.6}
+.iconbtn[aria-pressed="true"]{color:var(--coral);border-color:#FFC6CE;box-shadow:0 0 0 3px rgba(255,122,138,.14),0 0 16px rgba(255,122,138,.3)}
+.iconbtn svg{width:17px;height:17px}
+
+.btn{border:0;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:var(--btn-ink);padding:12px 22px;border-radius:999px;font-weight:800;box-shadow:0 8px 24px rgba(47,107,255,.34);transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(47,107,255,.45)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.btn.ghost{background:var(--surface2);color:var(--ink);box-shadow:none}
+.btn.small{padding:8px 15px;font-size:.88rem}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:.9rem;font-weight:600;transition:transform .15s,box-shadow .2s}
+.chip:hover{transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent);box-shadow:0 0 14px rgba(47,107,255,.25)}
+
+.faces{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.facebtn{border:2px solid transparent;background:var(--surface2);border-radius:22px;padding:10px 2px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.78rem;font-weight:700;min-width:0;transition:transform .2s cubic-bezier(.3,1.6,.5,1),box-shadow .2s}
+.facebtn svg{width:40px;height:40px;max-width:100%;transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.facebtn:hover svg{transform:scale(1.15)}
+.facebtn:active{transform:scale(.94)}
+.facebtn[aria-pressed="true"]{border-color:var(--accent);background:#fff;box-shadow:var(--glow)}
+.facebtn[aria-pressed="true"] svg{transform:scale(1.15)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tile{--tc1:#FFB347;--tc2:#FF7A59;border:1px solid var(--line);text-align:left;border-radius:26px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;min-width:0;background:#fff;transition:transform .25s,box-shadow .25s}
+.tile.t2{--tc1:#3DDBB0;--tc2:#2FB0E8}
+.tile.t3{--tc1:#A987FF;--tc2:#FF7EC7}
+.tile.t4{--tc1:#4DA3FF;--tc2:#6C7BFF}
+.tile:hover{transform:translateY(-3px);box-shadow:0 14px 34px color-mix(in srgb,var(--tc2) 38%,transparent)}
+.tile b{font-family:var(--font-display);font-weight:500;font-size:1.05rem;line-height:1.25;margin-top:4px}
+.tile span{font-size:.86rem;color:var(--muted);line-height:1.35}
+.dot{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--tc1,#4DA3FF),var(--tc2,#6C7BFF));color:#fff;box-shadow:0 8px 20px color-mix(in srgb,var(--tc2,#6C7BFF) 55%,transparent),0 0 0 4px color-mix(in srgb,var(--tc2,#6C7BFF) 16%,transparent)}
+.dot svg{width:22px;height:22px}
+
+textarea,input[type=text],input[type=tel],select{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:11px 14px}
+textarea{resize:vertical;min-height:88px}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(47,107,255,.12)}
+label.lab{display:block;font-weight:700;font-size:.92rem;margin-bottom:6px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+
+.alert{background:var(--alert-bg);color:var(--alert-ink);border-radius:18px;padding:12px 14px;font-size:.92rem}
+.note{background:var(--soft);border-radius:18px;padding:12px 14px;font-size:.92rem}
+.own{background:var(--lav);border-radius:26px;padding:18px;box-shadow:0 0 28px rgba(200,184,255,.5)}
+.own q{display:block;font-family:var(--font-quote);font-style:italic;font-size:1.3rem;line-height:1.28;margin:6px 0;quotes:"\201C" "\201D"}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;pointer-events:none;
+  padding:0 max(12px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-right,0px))}
+.nav div{pointer-events:auto;max-width:500px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:6px;border-radius:28px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 10px 34px rgba(60,100,200,.14)}
+.nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;font-size:.68rem;font-weight:800;color:var(--muted);border-radius:22px;transition:background .25s,color .25s,box-shadow .25s}
+.nav button svg{width:23px;height:23px}
+.nav button[aria-current="page"]{color:#fff;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));box-shadow:0 6px 20px rgba(100,90,255,.5)}
+.nav button[aria-current="page"] svg{stroke-width:2.4}
+
+.sheet-back{position:fixed;inset:0;z-index:20;background:rgba(31,42,68,.28);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:640px;max-height:92%;overflow:auto;border-radius:30px 30px 0 0;box-shadow:0 -10px 40px rgba(60,100,200,.18);
+  padding:20px max(18px,env(safe-area-inset-left,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px;animation:rise .35s cubic-bezier(.2,.9,.3,1)}
+@keyframes rise{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.x{border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;font-size:1.3rem;line-height:1;flex:none}
+.tabs{display:flex;gap:6px;background:var(--surface2);padding:4px;border-radius:999px}
+.tabs button{flex:1;border:0;background:none;padding:8px 6px;border-radius:999px;font-weight:700;font-size:.88rem}
+.tabs button[aria-selected="true"]{background:#fff;box-shadow:0 2px 10px rgba(47,107,255,.16)}
+
+.entry{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.entry:first-child{border-top:0}
+.entry svg.face{width:38px;height:38px;flex:none}
+.tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600;margin:4px 6px 0 0}
+.link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:4px;font-size:.84rem}
+
+.breath{display:grid;place-items:center;height:240px;position:relative}
+.orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff 0,#C6E4FF 34%,#A99BFF 100%);box-shadow:0 0 70px 10px rgba(140,170,255,.55),0 0 120px 30px rgba(255,170,220,.25);transform:scale(.55);transition:transform 4s ease-in-out}
+.blabel{position:absolute;text-align:center;font-family:var(--font-display);font-weight:600;font-size:1.5rem;color:var(--ink);text-shadow:0 0 14px #fff,0 0 4px #fff}
+.blabel small{display:block;font-family:var(--font-body);font-weight:700;font-size:.85rem;color:var(--muted)}
+.stagebox{background:#fff;border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:var(--shadow)}
+canvas.bub,canvas.sandcv{display:block;width:100%;height:360px;touch-action:none;background:linear-gradient(180deg,#F4F9FF,#FFF5FA)}
+.pairs{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.pc{aspect-ratio:1;border:1px solid var(--line);border-radius:20px;background:#fff;font-size:1.9rem;display:grid;place-items:center;color:transparent;transition:transform .3s cubic-bezier(.3,1.6,.5,1),box-shadow .3s;box-shadow:var(--shadow)}
+.pc:hover{transform:translateY(-3px)}
+.pc.up{background:var(--soft);color:var(--accent);box-shadow:var(--glow)}
+.pc.done{background:var(--lav);color:var(--ink);box-shadow:0 0 20px rgba(200,184,255,.6)}
+.jar{border:2.5px solid var(--line);border-radius:30px 30px 46px 46px;padding:16px 14px;min-height:140px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-end;background:#fff;box-shadow:inset 0 -16px 30px rgba(255,224,138,.28)}
+.peb{border:0;border-radius:999px;padding:6px 13px;font-size:.88rem;font-weight:700;color:#1F2A44;text-align:left;max-width:100%;animation:pop .5s cubic-bezier(.3,1.6,.5,1) backwards;box-shadow:0 0 14px rgba(150,180,255,.4)}
+@keyframes pop{from{transform:scale(.3)}to{transform:none}}
+.float{position:fixed;z-index:30;left:50%;transform:translateX(-50%);pointer-events:none;font-family:var(--font-quote);font-style:italic;font-size:1.5rem;max-width:80vw;text-align:center;animation:away 4.5s ease-in forwards}
+@keyframes away{0%{opacity:1;filter:blur(0);transform:translate(-50%,0)}100%{opacity:0;filter:blur(8px);transform:translate(-50%,-180px)}}
+
+.post{display:flex;flex-direction:column;gap:10px}
+.post p{white-space:pre-wrap;overflow-wrap:anywhere}
+.alias{font-family:var(--font-display);font-weight:600;font-size:.98rem}
+.reacts{display:flex;flex-wrap:wrap;gap:6px}
+.react{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:600;transition:transform .2s cubic-bezier(.3,1.6,.5,1),box-shadow .2s}
+.react:hover{transform:translateY(-2px)}
+.react[aria-pressed="true"]{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:700;box-shadow:0 0 12px rgba(47,107,255,.25)}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat div{background:var(--surface2);border-radius:20px;padding:12px;min-width:0}
+.stat b{display:block;font-family:var(--font-display);font-weight:600;font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.chartwrap{overflow-x:auto}
+svg.chart{width:100%;height:auto;min-width:300px;display:block}
+.toast{position:fixed;z-index:40;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;font-weight:700;max-width:88vw;animation:rise .3s ease-out;box-shadow:0 0 24px rgba(47,107,255,.35)}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.chathead{display:flex;gap:14px;align-items:center}
+.jing{width:56px;height:56px;flex:none;display:grid;place-items:center}
+.jing svg{width:50px;height:50px;filter:drop-shadow(0 0 10px rgba(130,160,255,.8));animation:floaty 5s ease-in-out infinite}
+.chatlog{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:11px 16px;border-radius:24px;white-space:pre-wrap;overflow-wrap:anywhere;animation:pop .4s cubic-bezier(.3,1.5,.5,1) backwards}
+.msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:8px;box-shadow:var(--shadow)}
+.msg.ai.err{background:var(--alert-bg);color:var(--alert-ink);border-color:transparent}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--btn-a),var(--btn-b));color:var(--btn-ink);border-bottom-right-radius:8px;font-weight:600;box-shadow:0 6px 18px rgba(47,107,255,.3)}
+.typing{display:inline-flex;gap:5px;padding:4px 0}
+.typing i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dotb 1s ease-in-out infinite;box-shadow:0 0 8px rgba(47,107,255,.6)}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes dotb{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-6px);opacity:1}}
+.composer{position:sticky;bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;gap:8px;align-items:flex-end;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:30px;padding:8px;box-shadow:0 10px 34px rgba(60,100,200,.16)}
+.composer textarea{min-height:44px;max-height:120px;border-radius:22px;resize:none;border-color:transparent}
+.composer .btn{flex:none;height:44px;padding:0 20px}
+.helplines{display:flex;flex-direction:column;gap:8px}
+.helpline{display:flex;gap:10px;align-items:center;background:var(--surface2);border-radius:18px;padding:10px 12px}
+.helpline .grow{display:flex;flex-direction:column;line-height:1.3}
+.regsel{width:auto;padding:6px 10px;border-radius:12px;font-size:.88rem}
+canvas.ripcv{display:block;width:100%;height:380px;touch-action:none;cursor:pointer;background:linear-gradient(180deg,#DDF1FF,#EFE8FF 55%,#FFEAF4)}
+.confetti{position:fixed;left:0;right:0;top:55%;height:0;z-index:60;pointer-events:none}
+.confetti i{position:absolute;width:9px;height:14px;border-radius:3px;animation:conf 1.7s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes conf{0%{transform:translate(0,0) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 380px)) rotate(var(--r));opacity:0}}
+#view.entering>*{animation:enter .65s cubic-bezier(.2,.8,.3,1) backwards}
+#view.entering>*:nth-child(2){animation-delay:.07s}#view.entering>*:nth-child(3){animation-delay:.14s}#view.entering>*:nth-child(4){animation-delay:.21s}#view.entering>*:nth-child(n+5){animation-delay:.28s}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.orbpos{transform:none}}
+@media (max-width:380px){.tiles{grid-template-columns:1fr}.stat b{font-size:1.25rem}}
+</style>
+
+<div class="bg" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="app">
+  <header class="top">
+    <button class="brand" data-a="logo" aria-label="Softly">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <defs><radialGradient id="lgA" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#fff"/><stop offset=".36" stop-color="#C6E4FF"/><stop offset="1" stop-color="#9A8CFF"/></radialGradient></defs>
+        <circle cx="20" cy="20" r="15" fill="url(#lgA)"/>
+        <ellipse cx="15" cy="13.800" rx="4.600" ry="2.600" fill="#fff" opacity=".85" transform="rotate(-32 15 13.800)"/>
+      </svg>
+      <b>softly</b>
+    </button>
+    <button class="sos" data-a="support" aria-label="Open support: breathing, grounding and helplines">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.500A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>
+      Need support
+    </button>
+  </header>
+  <main id="view" class="stack" aria-live="polite"></main>
+</div>
+<nav class="nav" aria-label="Main">
+  <div id="nav"></div>
+</nav>
+<div id="sheetRoot"></div>
+<div id="toastRoot" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DAY=864e5;
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+const startOfDay=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+const dkey=t=>{const d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const fmtDay=t=>new Date(t).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+const fmtShort=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+const fmtTime=t=>new Date(t).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const reduceMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CRISIS=/\b(kill myself|killing myself|end my life|end it all|suicid\w*|want to die|wanna die|don'?t want to (be here|live|exist)|self[- ]?harm\w*|hurt myself|cutting myself|better off dead|no reason to live)\b/i;
+
+/* ---------- private data (this device only) ---------- */
+const KEY='softly.v1';
+const def=()=>({moods:[],chat:[],share:false,qHist:[],jar:[],liked:[],contact:{name:'',phone:''},region:'',lastPrompt:0,eve:{}});
+function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(def(),JSON.parse(r))}catch(e){}return def()}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let demoOn=false,demoCache=null;
+const MOODS=()=>demoOn?(demoCache||(demoCache=makeDemo())):S.moods;
+
+/* ---------- content ---------- */
+const Q={
+morning:["You don't have to fix the whole day. Just begin with the next small thing.","Today is unwritten. Go gently with the pen.","A slow start is still a start.","Whatever you carried yesterday, you are allowed to set it down at the door.","Be as kind to yourself this morning as you would be to a friend who woke up worried.","Let the day come to you at its own speed.","Small steps count. So does getting out of bed."],
+noon:["Halfway there. Unclench your jaw, drop your shoulders, take one slow breath.","You are allowed to pause. Rest is part of the work.","Progress is quiet most of the time.","If the morning went badly, the afternoon is a fresh page.","Drink some water. Look at something far away. You are doing better than you think.","Not everything needs an answer by lunchtime.","One thing at a time is a perfectly good way to live."],
+evening:["You made it through today. That is worth noticing.","Put the list down. The day has had enough of you for now.","What went well, even a little? Let that be the last thing you hold.","You don't have to be productive to deserve rest.","Let the day be what it was. Tomorrow is not obliged to copy it.","Soft light, slow breath, loose shoulders."],
+night:["Your thoughts are louder in the dark. They are not truer.","Nothing needs solving at this hour. Sleep is the work now.","You did enough today.","The worries will still be there in the morning, and so will you, with more strength to meet them.","Let your body be heavy. Let the day end.","Be gentle with the person who is trying so hard."],
+any:["Feelings are weather. They pass through, and you are the sky.","You can feel two things at once: tired and hopeful, scared and ready.","Asking for help is a skill, not a weakness.","Growth is mostly invisible while it is happening.","You are not behind. You are on your own path.","A hard day does not erase a good life.","Talk to yourself the way you would talk to someone you love.","It is okay to take it one hour at a time.","Some days the win is simply getting through."]
+};
+const PERIODS={morning:{label:'Morning light',greet:'Good morning'},noon:{label:'Midday pause',greet:'Good afternoon'},evening:{label:'Evening unwind',greet:'Good evening'},night:{label:'Night stillness',greet:'Winding down'}};
+const TAGS=['tired','anxious','stressed','lonely','sad','restless','calm','grateful','proud','loved','hopeful','focused','walked','slept well','saw friends','exercised'];
+const RESP={1:"Thank you for telling me. Heavy moments are real, and you don't have to carry this one alone.",2:"That sounds low. Be gentle with yourself for the next hour.",3:"Okay is a perfectly good place to be.",4:"I'm glad. Notice what helped today.",5:"That's lovely. Let yourself enjoy it fully."};
+const MOODNAME={1:'Heavy',2:'Low',3:'Okay',4:'Good',5:'Bright'};
+const REG={
+IE:{name:'Ireland',em:'999 or 112',lines:[['Samaritans','116 123','Free, 24/7. Talk about anything.'],['Pieta','1800 247 247','Free, 24/7 support for suicidal thoughts and self-harm. You can also text HELP to 51444.'],['Text 50808','50808','Free, 24/7 text service. Text HELLO.'],['Aware','1800 80 48 48','Support for depression and anxiety.'],['Childline','1800 66 66 66','For anyone under 18.']]},
+UK:{name:'United Kingdom',em:'999',lines:[['Samaritans','116 123','Free, 24/7.'],['Shout','85258','Text SHOUT to 85258. Free, 24/7.'],['NHS 111','111','Choose the mental health option, where available.']]},
+US:{name:'United States',em:'911',lines:[['988 Lifeline','988','Call or text, 24/7.'],['Crisis Text Line','741741','Text HOME to 741741.']]},
+OT:{name:'Somewhere else',em:'your local emergency number',lines:[['Find a helpline','findahelpline.com','Lists free helplines by country.']]}
+};
+function guessRegion(){try{const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';if(z==='Europe/Dublin')return'IE';if(z==='Europe/London')return'UK';if(z.indexOf('America/')===0)return'US'}catch(e){}return'OT'}
+function region(){return REG[S.region]?S.region:guessRegion()}
+
+/* ---------- time ---------- */
+function period(){const h=new Date().getHours();return h>=5&&h<11?'morning':h>=11&&h<17?'noon':h>=17&&h<21?'evening':'night'}
+document.documentElement.dataset.period=period();
+let qOff=0;
+function quoteFor(p){const pool=Q[p].concat(Q.any);return pool[(hash(dkey(Date.now())+p)+qOff)%pool.length]}
+
+/* ---------- icons ---------- */
+const ic=(d,extra='')=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
+const ICON={
+home:ic('<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400"/>'),
+log:ic('<path d="M3 17c3 0 3-9 6-9s3 8 6 8 3-6 6-6"/>'),
+calm:ic('<path d="M5 19c0-8 5-13 14-14 0 9-5 14-14 14z"/><path d="M5 19c3-4 6-7 10-9"/>'),
+wall:ic('<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.500"/><path d="M3 19c0-3.500 3-5.500 6-5.500s6 2 6 5.500M15 14c3 0 6 1.500 6 5"/>'),
+talk:ic('<path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.500A8 8 0 1 1 21 12z"/><path d="M12 8.500l1 2.500 2.500 1-2.500 1-1 2.500-1-2.500-2.500-1 2.500-1z"/>'),
+week:ic('<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/>'),
+heart:ic('<path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.500A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>'),
+more:ic('<path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2-2a5.500 5.500 0 1 0 1 5"/>'),
+wind:ic('<path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8"/>'),
+spark:ic('<path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800z"/>'),
+release:ic('<path d="M12 20V8M7 12l5-5 5 5"/><path d="M5 4h14" opacity=".4"/>'),
+grain:ic('<path d="M12 3c3 4 6 6.500 6 10a6 6 0 0 1-12 0c0-3.500 3-6 6-10z"/><path d="M9 14a3 3 0 0 0 3 3"/>'),
+play:ic('<circle cx="12" cy="12" r="9"/><path d="M10 8.500l5 3.500-5 3.500z"/>')
+};
+const NAV=[['home','Home'],['log','Log'],['talk','Talk'],['calm','Calm'],['wall','Wall'],['week','Week']];
+$('#nav').innerHTML=NAV.map(([k,l])=>`<button data-a="go" data-v="${k}">${ICON[k==='home'?'home':k]}<span>${l}</span></button>`).join('');
+
+function face(m,size){
+  const mouth={1:'M14 31 Q22 24 30 31',2:'M15 30 Q22 27 29 30',3:'M15 29 L29 29',4:'M14 27 Q22 33 30 27',5:'M13 26 Q22 37 31 26'}[m];
+  return `<svg class="face" viewBox="0 0 44 44" ${size?`width="${size}" height="${size}"`:''} aria-hidden="true"><circle cx="22" cy="22" r="20" style="fill:var(--m${m})"/><circle cx="16" cy="18" r="2" style="fill:var(--face)"/><circle cx="28" cy="18" r="2" style="fill:var(--face)"/><path d="${mouth}" fill="none" style="stroke:var(--face)" stroke-width="2" stroke-linecap="round"/></svg>`;
+}
+
+/* ---------- cleanup of running things (timers, canvases) ---------- */
+const stoppers=new Set();
+function stopAll(){stoppers.forEach(f=>{try{f()}catch(e){}});stoppers.clear()}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){const r=$('#toastRoot');r.innerHTML=`<div class="toast">${esc(msg)}</div>`;clearTimeout(toastT);toastT=setTimeout(()=>{r.innerHTML=''},2600)}
+function copy(text,msg){
+  const ok=()=>toast(msg||'Copied');
+  try{navigator.clipboard.writeText(text).then(ok,()=>toast('Select the text to copy it'))}catch(e){toast('Select the text to copy it')}
+}
+
+/* ---------- demo data (never saved) ---------- */
+function makeDemo(){
+  const out=[];const now=Date.now();let r=4242;const rnd=()=>(r=(r*1664525+1013904223)>>>0)/4294967296;
+  const good=["Walked by the canal and felt lighter.","Had a proper catch-up with Aoife. Felt really heard.","Finished the thing I'd been avoiding. Relief.","Slept well and the whole day felt easier."];
+  const mid=["Fairly ordinary day. Nothing wrong, nothing special.","Got through my list without much fuss."];
+  const bad=["Mind was racing all afternoon and I couldn't settle.","Felt flat and a bit lonely tonight."];
+  const pool=['walked','tired','anxious','calm','saw friends','stressed','slept well','grateful','lonely'];
+  for(let i=13;i>=0;i--){
+    const base=startOfDay(now)-i*DAY;const n=1+Math.floor(rnd()*2);
+    for(let k=0;k<n;k++){
+      const t=base+(9+k*8+Math.floor(rnd()*2))*36e5;if(t>now)continue;
+      const tg=[pool[Math.floor(rnd()*pool.length)]];if(rnd()>.5){const x=pool[Math.floor(rnd()*pool.length)];if(tg.indexOf(x)<0)tg.push(x)}
+      const pos=tg.some(x=>x==='walked'||x==='saw friends'||x==='slept well'||x==='calm'||x==='grateful');
+      const neg=tg.some(x=>x==='tired'||x==='anxious'||x==='stressed'||x==='lonely');
+      let m=Math.round(3+(pos?.9:0)-(neg?1:0)+(rnd()-.5)*1.4+(13-i)*.03);m=Math.max(1,Math.min(5,m));
+      const note=rnd()>.45?(m>=4?good:m<=2?bad:mid)[Math.floor(rnd()*(m>=4?good:m<=2?bad:mid).length)]:'';
+      out.push({id:'d'+i+'_'+k,t,mood:m,tags:tg,note,kind:'checkin'});
+    }
+  }
+  return out;
+}
+
+/* ---------- routing ---------- */
+const TABS=['home','log','talk','calm','wall','week'];
+let calmSub=null;
+function curTab(){const h=(location.hash||'').slice(1);return TABS.indexOf(h)>=0?h:'home'}
+function go(tab,sub){
+  calmSub=sub||null;
+  if(('#'+tab)===location.hash||(!location.hash&&tab==='home')){render(true)}else{location.hash=tab}
+}
+window.addEventListener('hashchange',()=>{calmSub=null;render(false)});
+
+/* ---------- views ---------- */
+function render(keepScroll){
+  stopAll();
+  const tab=curTab();
+  document.querySelectorAll('#nav button').forEach(b=>{b.dataset.v===tab?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
+  const v=$('#view');
+  v.innerHTML=({home:homeHTML,log:logHTML,talk:talkHTML,calm:calmHTML,wall:wallHTML,week:weekHTML})[tab]();
+  if(tab==='calm')mountCalm();
+  if(tab==='wall')mountWall();
+  if(tab==='talk')mountTalk();
+  if(!keepScroll){window.scrollTo(0,0);v.classList.remove('entering');void v.offsetWidth;v.classList.add('entering')}
+}
+
+/* ----- home ----- */
+let promptOn=false,eveOn=false,promptDecided=false;
+function decidePrompts(){
+  if(promptDecided)return;promptDecided=true;
+  const now=Date.now();
+  const recent=MOODS().some(e=>now-e.t<2*36e5);
+  if(!recent&&now-S.lastPrompt>3*36e5&&(S.moods.length===0||Math.random()<.55)){promptOn=true;S.lastPrompt=now;save()}
+  const h=new Date().getHours(),k=dkey(now);
+  if(h>=19&&!S.eve[k]&&hash(k)%100<65)eveOn=true;
+}
+function homeHTML(){
+  decidePrompts();
+  const p=period(),q=currentQuote(),liked=S.liked.indexOf(q)>=0;
+  let h=`<section class="hero" aria-label="A line for this part of the day">
+    <div class="orbwrap"><div class="sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="orbpos"><button class="orbbtn" data-a="orbTap" aria-label="Glowing orb. Tap for a little sparkle."><span class="orb-glow"></span><i></i><i></i></button></div><span class="hint">Tap the glow</span></div>
+    <div class="hero-body">
+    <div class="cap">${PERIODS[p].label}</div>
+    <div class="greet">${PERIODS[p].greet}</div>
+    <p class="quote">${esc(q)}</p>
+    <div class="row">
+      <button class="iconbtn" data-a="like" aria-pressed="${liked}">${ICON.heart}<span>${liked?'Saved':'This helped'}</span></button>
+      <button class="iconbtn" data-a="moreQuote" ${quoteBusy?'disabled':''}>${ICON.more}<span>${quoteBusy?'Writing one…':'Another one'}</span></button>
+    </div></div></section>`;
+  if(promptOn){
+    h+=`<section class="card stack" aria-label="Check in">
+      <div><h2>How are you feeling right now?</h2><p class="muted small">Just a tap. Skip it any time.</p></div>
+      <div class="faces">${[1,2,3,4,5].map(m=>`<button class="facebtn" data-a="quickMood" data-v="${m}">${face(m)}<span>${MOODNAME[m]}</span></button>`).join('')}</div>
+      <div><button class="link" data-a="dismissPrompt">Not now</button></div></section>`;
+  }
+  if(eveOn){
+    h+=`<section class="card stack"><div><h2>Want to look back on today?</h2><p class="muted small">A few quiet minutes, only if you feel like it.</p></div>
+      <div class="row"><button class="btn" data-a="openEvening">Reflect on today</button><button class="btn ghost" data-a="dismissEve">Not tonight</button></div></section>`;
+  }
+  const lastDay=MOODS().filter(e=>Date.now()-e.t<DAY).sort((a,b)=>b.t-a.t)[0];
+  if(lastDay&&lastDay.mood<=2){const w=ownWords();if(w)h+=ownHTML(w,'On a better day, you wrote')}
+  h+=`<div class="tiles">
+    <button class="tile tilt t2" data-a="go2" data-v="calm" data-s="breathe"><div class="dot">${ICON.wind}</div><b>Breathe for a minute</b><span>A slow rhythm to follow.</span></button>
+    <button class="tile tilt t1" data-a="go2" data-v="calm" data-s="ripples"><div class="dot">${ICON.grain}</div><b>Calm water</b><span>Tap for glowing ripples.</span></button>
+    <button class="tile tilt t3" data-a="go2" data-v="calm" data-s="release"><div class="dot">${ICON.release}</div><b>Let it go</b><span>Write it, release it, gone.</span></button>
+    <button class="tile tilt t4" data-a="go2" data-v="calm" data-s="bubbles"><div class="dot">${ICON.play}</div><b>Pop some bubbles</b><span>Slow, soft and satisfying.</span></button>
+  </div>`;
+  const wk=MOODS().filter(e=>Date.now()-e.t<7*DAY).length;
+  h+=`<p class="muted small" style="text-align:center">${wk?`You've checked in ${wk} time${wk===1?'':'s'} this week. No streaks here, just you showing up.`:'Nothing to fill in. Softly will check in on you every now and then.'}</p>`;
+  return h;
+}
+function ownWords(){
+  const el=MOODS().filter(e=>e.note&&e.note.length>15&&e.mood>=4&&Date.now()-e.t>20*36e5);
+  if(!el.length)return null;
+  return el[hash(dkey(Date.now()))%el.length];
+}
+function ago(t){const d=Math.floor((startOfDay(Date.now())-startOfDay(t))/DAY);return d<=1?'yesterday':d<7?d+' days ago':d<14?'last week':Math.floor(d/7)+' weeks ago'}
+function ownHTML(e,title){return `<section class="own"><div class="cap">${esc(title)}, ${ago(e.t)}</div><q>${esc(e.note)}</q><p class="small muted">You felt ${esc(MOODNAME[e.mood].toLowerCase())} then. That version of you is still you.</p></section>`}
+
+/* ----- log ----- */
+function dayAvgs(entries,days){
+  const end=startOfDay(Date.now());const out=[];
+  for(let i=days-1;i>=0;i--){const s=end-i*DAY,e=s+DAY;const l=entries.filter(x=>x.t>=s&&x.t<e);out.push({s,avg:l.length?avg(l.map(x=>x.mood)):null})}
+  return out;
+}
+function chartSVG(entries){
+  const days=14,W=320,H=150,pl=40,pr=10,pt=12,pb=26;
+  const d=dayAvgs(entries,days);
+  const x=i=>pl+i*(W-pl-pr)/(days-1),y=v=>pt+(5-v)/4*(H-pt-pb);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Average mood for each of the last 14 days">`;
+  [[5,'Bright'],[3,'Okay'],[1,'Heavy']].forEach(([v,l])=>{s+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)" stroke-dasharray="3 4"/><text x="${pl-6}" y="${y(v)+3}" text-anchor="end" font-size="9" style="fill:var(--muted)">${l}</text>`});
+  let run=[];const runs=[];
+  d.forEach((p,i)=>{if(p.avg==null){if(run.length)runs.push(run);run=[]}else run.push([x(i),y(p.avg)])});
+  if(run.length)runs.push(run);
+  runs.forEach(r=>{
+    if(r.length>1){
+      s+=`<path d="M${r[0][0]} ${y(1)} ${r.map(p=>`L${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')} L${r[r.length-1][0]} ${y(1)} Z" style="fill:var(--accent)" opacity=".12"/>`;
+      s+=`<path d="${r.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')}" fill="none" style="stroke:var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+  });
+  d.forEach((p,i)=>{if(p.avg!=null){const m=Math.max(1,Math.min(5,Math.round(p.avg)));s+=`<circle cx="${x(i).toFixed(1)}" cy="${y(p.avg).toFixed(1)}" r="4.2" style="fill:var(--m${m});stroke:var(--accent)" stroke-width="1.5"/>`}});
+  [[0,'start'],[6,'middle'],[13,'end']].forEach(([i,a])=>{s+=`<text x="${i===13?W-pr:i===0?pl:x(i)}" y="${H-6}" text-anchor="${a}" font-size="9" style="fill:var(--muted)">${fmtShort(d[i].s)}</text>`});
+  return s+'</svg>';
+}
+function logHTML(){
+  const all=MOODS().slice().sort((a,b)=>b.t-a.t);
+  let h=`<div class="row between"><div><h2>Your mood log</h2><p class="muted small">Private. Stored on this device only.</p></div><button class="btn small" data-a="openCheckin">Add check-in</button></div>`;
+  if(demoOn)h+=`<div class="note">You're looking at example data. <button class="link" data-a="toggleDemo">Switch to my own</button></div>`;
+  if(!all.length){
+    return h+`<section class="card stack"><h3>Nothing here yet</h3><p class="muted">Check-ins show up as a gentle line over time. Tap a face on the Home tab when Softly asks, or add one yourself.</p><div class="row"><button class="btn" data-a="openCheckin">Add a check-in</button><button class="btn ghost" data-a="toggleDemo">See an example</button></div></section>`;
+  }
+  h+=`<section class="card stack"><div class="cap">Last 14 days</div><div class="chartwrap">${chartSVG(all)}</div></section>`;
+  const groups={};all.forEach(e=>{(groups[dkey(e.t)]=groups[dkey(e.t)]||[]).push(e)});
+  h+=`<section class="card">`;
+  Object.keys(groups).slice(0,30).forEach(k=>{
+    const l=groups[k];
+    h+=`<div class="cap" style="margin:10px 0 2px">${fmtDay(l[0].t)}</div>`;
+    l.forEach(e=>{
+      h+=`<div class="entry">${face(e.mood)}<div class="grow"><div class="row between"><b>${MOODNAME[e.mood]}${e.kind==='evening'?' · evening':''}</b><span class="muted small">${fmtTime(e.t)}</span></div>
+        ${e.tags&&e.tags.length?`<div>${e.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:''}
+        ${e.note?`<p style="margin-top:6px;overflow-wrap:anywhere">${esc(e.note)}</p>`:''}
+        ${e.good?`<p class="small muted" style="margin-top:4px">Something good: ${esc(e.good)}</p>`:''}
+        ${demoOn?'':`<button class="link" data-a="delEntry" data-v="${esc(e.id)}">Delete</button>`}</div></div>`;
+    });
+  });
+  h+=`</section>`;
+  return h;
+}
+
+/* ----- calm ----- */
+function calmHTML(){
+  if(!calmSub){
+    return `<div><h2>Calm</h2><p class="muted small">No scores, no timers. Pick whatever feels good.</p></div>
+    <div class="tiles">
+      <button class="tile tilt t2" data-a="calmOpen" data-v="breathe"><div class="dot">${ICON.wind}</div><b>Breathe</b><span>Guided rhythm, three patterns.</span></button>
+      <button class="tile tilt t1" data-a="calmOpen" data-v="ripples"><div class="dot">${ICON.grain}</div><b>Calm water</b><span>Glowing ripples that fade like breath.</span></button>
+      <button class="tile tilt t4" data-a="calmOpen" data-v="bubbles"><div class="dot">${ICON.play}</div><b>Bubbles</b><span>Drifting bubbles to pop.</span></button>
+      <button class="tile tilt t3" data-a="calmOpen" data-v="pairs"><div class="dot">${ICON.spark}</div><b>Quiet pairs</b><span>Match the symbols. No clock.</span></button>
+      <button class="tile tilt t1" data-a="calmOpen" data-v="release"><div class="dot">${ICON.release}</div><b>Let it go</b><span>Write a worry, watch it fade.</span></button>
+      <button class="tile tilt t2" data-a="calmOpen" data-v="jar"><div class="dot">${ICON.heart}</div><b>Thanks jar</b><span>Collect small wins and good things.</span></button>
+    </div>`;
+  }
+  const back=`<button class="link" data-a="calmBack">← All calm things</button>`;
+  if(calmSub==='breathe')return back+`<section class="card stack breathbox"><h2>Breathe</h2>${breathHTML()}</section>`;
+  if(calmSub==='bubbles')return back+`<section class="stack"><div class="row between"><h2>Bubbles</h2><label class="row small muted"><input type="checkbox" id="bubSound"> Soft sound</label></div><div class="stagebox"><canvas class="bub" id="bubCanvas" aria-label="Floating bubbles. Tap to pop."></canvas></div><p class="muted small" id="bubCount">Tap a bubble. Let your shoulders drop.</p></section>`;
+  if(calmSub==='pairs')return back+`<section class="stack"><div class="row between"><h2>Quiet pairs</h2><button class="btn ghost small" data-a="pairsNew">New game</button></div><div class="pairs" id="pairsGrid"></div><p class="muted small" id="pairsMsg">Turn two cards at a time.</p></section>`;
+  if(calmSub==='release')return back+`<section class="card stack"><h2>Let it go</h2><p class="muted">Write what is weighing on you. When you release it, it fades away. Nothing is saved anywhere.</p><textarea id="relText" maxlength="400" placeholder="What's on your mind?" aria-label="What is weighing on you"></textarea><div id="relMsg"></div><button class="btn" data-a="release">Release it</button></section>`;
+  if(calmSub==='ripples')return back+`<section class="stack"><div class="row between"><h2>Calm water</h2><label class="row small muted"><input type="checkbox" id="ripSound"> Soft chimes</label></div><div class="stagebox"><canvas class="ripcv" id="ripCanvas" aria-label="Calm water. Tap or drag to make glowing ripples."></canvas></div><p class="muted small">Tap or drag across the water. Take your time.</p></section>`;
+  if(calmSub==='jar')return back+jarHTML();
+  return '';
+}
+function jarHTML(){
+  return `<section class="card stack"><div><h2>Thanks jar</h2><p class="muted">Add small wins and good things. On a rough day, they're all still in here.</p></div>
+  ${aiOn()?'<div class="row"><button class="btn ghost small" data-a="jarIdea">Give me an idea</button><span class="muted small grow" id="jarIdea"></span></div>':''}
+  <div class="row"><input type="text" id="jarIn" maxlength="90" placeholder="Something good, however small" aria-label="Add to your jar" class="grow"><button class="btn" data-a="jarAdd">Add</button></div>
+  <div class="jar" id="jarBox">${S.jar.length?S.jar.map((j,i)=>`<button class="peb" style="background:var(--${['b1','b2','b3'][i%3]})" data-a="jarDel" data-v="${i}" aria-label="Remove: ${esc(j.text)}">${esc(j.text)}</button>`).join(''):'<span class="muted small">Your jar is empty. The first one can be tiny.</span>'}</div>
+  <p class="muted small">${S.jar.length} in the jar. Tap one to remove it.</p></section>`;
+}
+function mountCalm(){
+  if(calmSub==='bubbles')startBubbles();
+  if(calmSub==='pairs')startPairs();
+  if(calmSub==='ripples')startRipples();
+}
+
+/* breathing */
+const PATTERNS={box:{name:'Box · 4-4-4-4',ph:[['Breathe in',4,1],['Hold',4,1],['Breathe out',4,.55],['Hold',4,.55]]},
+  relax:{name:'4-7-8 relax',ph:[['Breathe in',4,1],['Hold',7,1],['Breathe out',8,.55]]},
+  easy:{name:'Easy · 4 in, 6 out',ph:[['Breathe in',4,1],['Breathe out',6,.55]]}};
+function breathHTML(){
+  return `<div class="breath"><div class="orb"></div><div class="blabel">Ready<small>when you are</small></div></div>
+  <div class="row"><select class="bpat grow" aria-label="Breathing pattern">${Object.keys(PATTERNS).map(k=>`<option value="${k}">${PATTERNS[k].name}</option>`).join('')}</select><button class="btn" data-a="bToggle">Start</button></div>`;
+}
+function breathToggle(root,btn){
+  if(root._stop){root._stop();return}
+  const orb=$('.orb',root),lab=$('.blabel',root),sel=$('.bpat',root);
+  const ph=PATTERNS[sel.value].ph;let i=0,timer=null,tick=null,stopped=false;
+  function stop(){stopped=true;clearTimeout(timer);clearInterval(tick);root._stop=null;stoppers.delete(stop);btn.textContent='Start';orb.style.transition='transform 1s ease';orb.style.transform='scale(.55)';lab.innerHTML='Well done<small>take a moment</small>'}
+  function step(){
+    if(stopped)return;
+    const [name,sec,scale]=ph[i%ph.length];let left=sec;
+    orb.style.transition=reduceMotion()?'none':`transform ${sec}s ease-in-out`;orb.style.transform=`scale(${scale})`;
+    lab.innerHTML=`${name}<small>${left}</small>`;
+    clearInterval(tick);tick=setInterval(()=>{left--;if(left>0)lab.innerHTML=`${name}<small>${left}</small>`},1000);
+    i++;timer=setTimeout(step,sec*1000);
+  }
+  root._stop=stop;stoppers.add(stop);btn.textContent='Stop';step();
+}
+
+/* bubbles */
+function startBubbles(){
+  const cv=$('#bubCanvas');if(!cv)return;
+  const ctx=cv.getContext('2d');let W=0,H=0,raf=0,last=0,spawn=0,pops=0;
+  const bubs=[],rings=[];
+  const cs=getComputedStyle(document.documentElement);
+  const cols=['--b1','--b2','--b3'].map(v=>cs.getPropertyValue(v).trim()||'#7FC4BC');
+  function size(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+  size();
+  let ac=null;
+  function tone(){const on=$('#bubSound');if(!on||!on.checked)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=380+Math.random()*320;g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.08,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.5);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.55)}catch(e){}}
+  function add(){bubs.push({x:30+Math.random()*(W-60),y:H+40,r:18+Math.random()*26,vy:14+Math.random()*22,ph:Math.random()*6,c:cols[Math.floor(Math.random()*3)]})}
+  for(let i=0;i<7;i++){add();bubs[i].y=Math.random()*H}
+  function frame(t){
+    const dt=Math.min(.05,(t-last)/1000||0);last=t;spawn+=dt;
+    if(spawn>.9&&bubs.length<14){spawn=0;add()}
+    ctx.clearRect(0,0,W,H);
+    for(let i=bubs.length-1;i>=0;i--){
+      const b=bubs[i];b.y-=b.vy*dt;b.ph+=dt;b.x+=Math.sin(b.ph)*10*dt;
+      if(b.y<-60){bubs.splice(i,1);continue}
+      const g=ctx.createRadialGradient(b.x-b.r*.3,b.y-b.r*.3,b.r*.1,b.x,b.y,b.r);
+      g.addColorStop(0,'rgba(255,255,255,.75)');g.addColorStop(.35,b.c);g.addColorStop(1,b.c);
+      ctx.globalAlpha=.55;ctx.fillStyle=g;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();
+      ctx.globalAlpha=.9;ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1.5;ctx.stroke();
+    }
+    for(let i=rings.length-1;i>=0;i--){
+      const r=rings[i];r.t+=dt;if(r.t>.6){rings.splice(i,1);continue}
+      ctx.globalAlpha=1-r.t/.6;ctx.strokeStyle=r.c;ctx.lineWidth=3;ctx.beginPath();ctx.arc(r.x,r.y,r.r+r.t*60,0,7);ctx.stroke();
+    }
+    ctx.globalAlpha=1;raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  function down(e){
+    const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    for(let i=bubs.length-1;i>=0;i--){const b=bubs[i];if(Math.hypot(b.x-x,b.y-y)<=b.r+6){rings.push({x:b.x,y:b.y,r:b.r,t:0,c:b.c});bubs.splice(i,1);pops++;tone();const c=$('#bubCount');if(c)c.textContent=pops+' popped. Nice and easy.';break}}
+  }
+  cv.addEventListener('pointerdown',down);
+  window.addEventListener('resize',size);
+  stoppers.add(()=>{cancelAnimationFrame(raf);cv.removeEventListener('pointerdown',down);window.removeEventListener('resize',size);if(ac){try{ac.close()}catch(e){}}});
+}
+
+/* pairs */
+let pairs=null;
+function startPairs(){
+  const sym=['✦','❀','☾','☼','❖','✿'];
+  const deck=sym.concat(sym).map((s,i)=>({s,i,id:Math.random()})).sort((a,b)=>a.id-b.id);
+  pairs={deck,up:[],done:new Set(),lock:false,moves:0};drawPairs();
+}
+function drawPairs(){
+  const g=$('#pairsGrid');if(!g||!pairs)return;
+  g.innerHTML=pairs.deck.map((c,k)=>{const shown=pairs.up.indexOf(k)>=0||pairs.done.has(k);return `<button class="pc ${pairs.done.has(k)?'done':shown?'up':''}" data-a="pairFlip" data-v="${k}" aria-label="${shown?'Card '+c.s:'Hidden card'}" ${pairs.done.has(k)?'disabled':''}>${shown?c.s:'·'}</button>`}).join('');
+  const m=$('#pairsMsg');
+  if(pairs.done.size===pairs.deck.length&&!pairs.cel){pairs.cel=1;confetti()}
+  if(m){m.textContent=pairs.done.size===pairs.deck.length?`All matched in ${pairs.moves} moves. Take a slow breath.`:`${pairs.done.size/2} of ${pairs.deck.length/2} matched. No rush.`}
+}
+function pairFlip(k){
+  if(!pairs||pairs.lock||pairs.up.indexOf(k)>=0||pairs.done.has(k))return;
+  pairs.up.push(k);drawPairs();
+  if(pairs.up.length===2){
+    pairs.moves++;const [a,b]=pairs.up;pairs.lock=true;
+    const p=pairs;
+    const t=setTimeout(()=>{if(pairs!==p)return;if(p.deck[a].s===p.deck[b].s){p.done.add(a);p.done.add(b)}p.up=[];p.lock=false;drawPairs()},p.deck[a].s===p.deck[b].s?400:900);
+    stoppers.add(()=>clearTimeout(t));
+  }
+}
+
+/* ----- week ----- */
+function weekStats(){
+  const now=Date.now(),s7=startOfDay(now)-6*DAY,s14=s7-7*DAY;
+  const all=MOODS();
+  const cur=all.filter(e=>e.t>=s7),prev=all.filter(e=>e.t>=s14&&e.t<s7);
+  const byDay={};cur.forEach(e=>{(byDay[dkey(e.t)]=byDay[dkey(e.t)]||[]).push(e)});
+  const days=Object.keys(byDay).map(k=>({t:byDay[k][0].t,avg:avg(byDay[k].map(x=>x.mood))}));
+  const best=days.slice().sort((a,b)=>b.avg-a.avg)[0],hard=days.slice().sort((a,b)=>a.avg-b.avg)[0];
+  const rec=all.filter(e=>e.t>=now-14*DAY),overall=avg(rec.map(e=>e.mood));
+  const tg={};rec.forEach(e=>(e.tags||[]).forEach(t=>{(tg[t]=tg[t]||[]).push(e.mood)}));
+  const tagList=Object.keys(tg).map(t=>({t,n:tg[t].length,avg:avg(tg[t]),diff:avg(tg[t])-overall}));
+  const lift=tagList.filter(x=>x.n>=2&&x.diff>=.4).sort((a,b)=>b.diff-a.diff)[0];
+  const drag=tagList.filter(x=>x.n>=2&&x.diff<=-.4).sort((a,b)=>a.diff-b.diff)[0];
+  const top=tagList.slice().sort((a,b)=>b.n-a.n).slice(0,4);
+  return {cur,prev,avgCur:avg(cur.map(e=>e.mood)),avgPrev:avg(prev.map(e=>e.mood)),best,hard,lift,drag,top,days:days.length};
+}
+function weekHTML(){
+  const st=weekStats();
+  let h=`<div><h2>Your week</h2><p class="muted small">${fmtShort(startOfDay(Date.now())-6*DAY)} to ${fmtShort(Date.now())}</p></div>`;
+  if(demoOn)h+=`<div class="note">You're looking at an example week. <button class="link" data-a="toggleDemo">Switch to my own</button></div>`;
+  if(!st.cur.length){
+    h+=`<section class="card stack"><h3>Your week will show up here</h3><p class="muted">After a few check-ins you'll see your average mood, your best day, and what tends to lift you. It also brings back words you wrote on good days.</p><div class="row"><button class="btn ghost" data-a="toggleDemo">See an example week</button></div></section>`;
+  }else{
+    const m=Math.max(1,Math.min(5,Math.round(st.avgCur)));
+    let delta='';
+    if(st.prev.length){const d=st.avgCur-st.avgPrev;delta=Math.abs(d)<.25?'about the same as last week':d>0?'up from last week':'a little lower than last week'}
+    h+=`<section class="card stack"><div class="stat">
+      <div><span class="cap">Check-ins</span><b>${st.cur.length}</b></div>
+      <div><span class="cap">Average</span><b style="display:flex;gap:6px;align-items:center">${face(m,28)}${st.avgCur.toFixed(1)}</b></div>
+      <div><span class="cap">Days</span><b>${st.days}<span class="muted small"> of 7</span></b></div></div>
+      ${delta?`<p class="muted">Your average was ${delta}.</p>`:''}
+      <div class="chartwrap">${chartSVG(MOODS())}</div></section>`;
+    h+=`<section class="card stack"><h3>What stood out</h3>`;
+    if(st.best)h+=`<p><b>Best day:</b> ${fmtDay(st.best.t)}${st.hard&&st.hard.t!==st.best.t?`. <b>Toughest:</b> ${fmtDay(st.hard.t)}. You still got through it.`:'.'}</p>`;
+    if(st.lift)h+=`<p><b>What lifted you:</b> check-ins tagged "${esc(st.lift.t)}" averaged ${st.lift.avg.toFixed(1)}, against ${(st.lift.avg-st.lift.diff).toFixed(1)} overall. It's an early pattern, not a rule.</p>`;
+    if(st.drag)h+=`<p><b>What weighed on you:</b> "${esc(st.drag.t)}" came with lower moods (${st.drag.avg.toFixed(1)}). Worth being gentle around it.</p>`;
+    if(st.top.length)h+=`<div>${st.top.map(x=>`<span class="tag">${esc(x.t)} · ${x.n}</span>`).join('')}</div>`;
+    const sugg=st.lift?`Try to make room for "${esc(st.lift.t)}" a couple of times next week.`:st.avgCur&&st.avgCur<3?'Next week, try one small anchor each day: a short walk, a message to someone, ten minutes outside.':'Keep doing what you are doing, and notice what makes the good moments good.';
+    h+=`<div class="note">${sugg}</div></section>`;
+  }
+  if(aiOn())h+=`<section class="card stack"><div><h3>A reflection from Jing</h3><p class="muted small">Sends a summary of this week, and your recent notes, to Claude. Only when you tap.</p></div><div id="weekAI"></div><div><button class="btn" data-a="weekReflect">Reflect on my week</button></div></section>`;
+  const w=ownWords();
+  if(w)h+=ownHTML(w,'Your own words');
+  if(!demoOn&&S.liked.length)h+=`<section class="card stack"><h3>Lines you saved</h3>${S.liked.slice(-6).reverse().map((q,i)=>`<div class="row between" style="align-items:flex-start;flex-wrap:nowrap"><p style="font-family:var(--font-quote);font-style:italic">${esc(q)}</p><button class="link" data-a="unlike" data-v="${S.liked.length-1-i}" aria-label="Remove saved line">Remove</button></div>`).join('')}</section>`;
+  if(!demoOn)h+=`<p class="muted small" style="text-align:center">${S.jar.length} thing${S.jar.length===1?'':'s'} in your thanks jar</p>`;
+  h+=`<section class="card stack"><h3>Your data</h3><p class="muted small">Your check-ins and jar are stored only in this browser on this device. They never reach the wall. Wall posts are shared and anonymous.</p>
+    <div class="row"><button class="btn ghost small" data-a="toggleDemo">${demoOn?'Show my own data':'See an example week'}</button><button class="btn ghost small" data-a="export">Download my data</button></div>
+    <div id="wipeBox"><button class="link" data-a="wipeAsk">Delete everything on this device</button></div></section>`;
+  return h;
+}
+
+/* ---------- sheets ---------- */
+let sheetCleanup=null;
+function openSheet(html){
+  closeSheet();
+  const r=$('#sheetRoot');
+  r.innerHTML=`<div class="sheet-back" id="sheetBack"><div class="sheet" role="dialog" aria-modal="true" id="sheetBody">${html}</div></div>`;
+  const b=$('#sheetBack');
+  b.addEventListener('click',e=>{if(e.target===b)closeSheet()});
+  const f=$('#sheetBody h2');if(f){f.setAttribute('tabindex','-1');f.focus({preventScroll:true})}
+}
+function setSheet(html){const b=$('#sheetBody');if(b)b.innerHTML=html}
+function closeSheet(){
+  if(sheetCleanup){try{sheetCleanup()}catch(e){}sheetCleanup=null}
+  const r=$('#sheetRoot');if(r)r.innerHTML='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();if(e.key==='Enter'&&!e.shiftKey&&e.target&&e.target.id==='chatIn'){e.preventDefault();const b=$('#chatBtn');if(b&&!chatBusy)sendChat(e.target.value)}});
+
+/* support */
+let supTab='breathe',groundStep=0;
+function supportOpen(){
+  supTab='breathe';groundStep=0;
+  if(!S.region){S.region=guessRegion();save()}
+  drawSupport(true);
+}
+function drawSupport(first){
+  const R=REG[region()];
+  const head=`<div class="sheet-head"><div><h2>You're not alone right now</h2><p class="muted small">Take one slow breath. Then pick whatever feels possible.</p></div><button class="x" data-a="closeSheet" aria-label="Close">×</button></div>
+  <div class="alert"><b>In danger, or thinking of ending your life?</b> Call ${esc(R.em)} now.</div>
+  <div class="helplines">${R.lines.slice(0,3).map(l=>`<div class="helpline"><div class="grow"><b>${esc(l[0])}</b><span class="muted small">${esc(l[2])}</span></div><button class="btn ghost small" data-a="copy" data-v="${esc(l[1])}">${esc(l[1])} · Copy</button></div>`).join('')}
+  <div class="row small muted"><label for="regSel">Where are you?</label><select id="regSel" data-in="region" class="regsel">${Object.keys(REG).map(k=>`<option value="${k}" ${k===region()?'selected':''}>${REG[k].name}</option>`).join('')}</select></div></div>
+  <div class="tabs" role="tablist">${[['breathe','Breathe'],['ground','Ground']].map(([k,l])=>`<button role="tab" aria-selected="${supTab===k}" data-a="supTab" data-v="${k}">${l}</button>`).join('')}</div>
+  <div id="supBody">${supBody()}</div>`;
+  if(first)openSheet(head);else{if(sheetCleanup){try{sheetCleanup()}catch(e){}sheetCleanup=null}stopAll();setSheet(head)}
+  sheetCleanup=()=>stopAll();
+}
+function supBody(){
+  if(supTab==='breathe')return `<div class="breathbox stack">${breathHTML()}</div>`;
+  if(supTab==='ground'){
+    const steps=[['5','things you can see','Look around slowly. Name five.'],['4','things you can feel','Your feet on the floor, your clothes, the chair.'],['3','things you can hear','Near sounds, far sounds.'],['2','things you can smell','Or two smells you like.'],['1','thing you can taste','Or one slow sip of water.']];
+    if(groundStep>=5)return `<div class="note stack"><b>Well done.</b><span>Notice your feet on the ground. You're here, and this moment is passing.</span><button class="btn ghost small" data-a="groundAgain">Go again</button></div>`;
+    const s=steps[groundStep];
+    return `<div class="card stack" style="box-shadow:none;background:var(--surface)"><div class="dots">${steps.map((_,i)=>`<i class="${i<=groundStep?'on':''}"></i>`).join('')}</div><div style="text-align:center"><div style="font-family:var(--font-display);font-size:4rem;line-height:1">${s[0]}</div><b>${s[1]}</b><p class="muted">${s[2]}</p></div><button class="btn" data-a="groundNext">${groundStep===4?'Finish':'Next'}</button></div>`;
+  }
+  return '';
+}
+
+/* check-in sheet */
+let ci=null;
+function openCheckin(opt){
+  opt=opt||{};
+  ci={mood:opt.mood||0,tags:[],note:'',good:'',kind:opt.kind||'checkin',saved:false};
+  drawCheckin(true);
+}
+function drawCheckin(first){
+  const eve=ci.kind==='evening';
+  let h;
+  if(ci.saved){
+    const m=ci.mood;
+    h=`<div class="sheet-head"><h2>Saved</h2><button class="x" data-a="closeSheet" aria-label="Close">×</button></div>
+    <div class="note stack"><p>${RESP[m]}</p></div>`;
+    if(CRISIS.test(ci.note+' '+ci.good))h+=`<div class="alert"><b>What you wrote sounds really heavy.</b> You deserve support from a real person right now.</div><button class="btn" data-a="support">See ways to reach someone</button>`;
+    if(m<=2)h+=`<div class="row"><button class="btn" data-a="sheetTo" data-v="breathe">Breathe together</button><button class="btn ghost" data-a="sheetTo" data-v="ripples">Watch the ripples</button><button class="btn ghost" data-a="support">Support</button></div>`;
+    else if(m>=4)h+=`<div class="row"><button class="btn ghost" data-a="sheetTo" data-v="jar">Add it to the thanks jar</button><button class="btn ghost" data-a="closeSheet">Done</button></div>`;
+    else h+=`<button class="btn ghost" data-a="closeSheet">Done</button>`;
+    if(aiOn())h+=`<div id="ciAI"></div><button class="btn ghost" data-a="ciThoughts">Hear Jing's thoughts</button>`;
+  }else{
+    h=`<div class="sheet-head"><div><h2>${eve?'Looking back on today':'How are you?'}</h2><p class="muted small">${eve?'No right answers. Say as much or as little as you like.':'Take your time. Everything below is optional except the face.'}</p></div><button class="x" data-a="closeSheet" aria-label="Close">×</button></div>
+    <div class="faces">${[1,2,3,4,5].map(m=>`<button class="facebtn" data-a="pickMood" data-v="${m}" aria-pressed="${ci.mood===m}">${face(m)}<span>${MOODNAME[m]}</span></button>`).join('')}</div>
+    <div><label class="lab">${eve?'What shaped your day?':'What is it close to?'}</label><div class="row">${TAGS.map(t=>`<button class="chip" data-a="tag" data-v="${esc(t)}" aria-pressed="${ci.tags.indexOf(t)>=0}">${esc(t)}</button>`).join('')}</div></div>
+    <div><label class="lab" for="ciNote">${eve?'Why do you think you feel this way?':'Anything you want to say about it?'}</label><textarea id="ciNote" data-in="note" maxlength="500" placeholder="Optional">${esc(ci.note)}</textarea></div>
+    ${eve?`<div><label class="lab" for="ciGood">One thing that went okay</label><input type="text" id="ciGood" data-in="good" maxlength="120" placeholder="Even something tiny" value="${esc(ci.good)}"></div>`:''}
+    <button class="btn" data-a="saveCheckin" ${ci.mood?'':'disabled'}>Save</button>`;
+  }
+  if(first)openSheet(h);else setSheet(h);
+}
+function saveCheckin(){
+  const e={id:newId(),t:Date.now(),mood:ci.mood,tags:ci.tags.slice(),note:ci.note.trim(),kind:ci.kind};
+  if(ci.good.trim())e.good=ci.good.trim();
+  S.moods.push(e);
+  if(ci.kind==='evening')S.eve[dkey(Date.now())]=1;
+  if(ci.good.trim())S.jar.push({t:Date.now(),text:ci.good.trim().slice(0,90)});
+  promptOn=false;eveOn=ci.kind==='evening'?false:eveOn;
+  save();ci.saved=true;drawCheckin(false);if(ci.mood>=4)confetti();
+  if(curTab()==='home'||curTab()==='log'||curTab()==='week')render(true);
+}
+
+/* ---------- AI (Claude, through the page) ---------- */
+// Outside Claude (for example on GitHub Pages) the AI can run through your own small server.
+// Paste your deployed Worker URL between the quotes, e.g. 'https://softly-ai.yourname.workers.dev'. Never put an API key here.
+const AI_URL='/api/chat';
+function makeRemoteAi(){
+  return async function(input,opts){
+    opts=opts||{};
+    const messages=typeof input==='string'?[{role:'user',content:input}]:input;
+    let res;
+    try{res=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages}),signal:opts.signal})}
+    catch(e){throw (e&&e.name==='AbortError')?{code:'cancelled',message:'cancelled'}:{code:'upstream_error',message:String(e)}}
+    if(res.status===429)throw {code:'rate_limited',message:'rate limited'};
+    if(!res.ok)throw {code:'upstream_error',message:'HTTP '+res.status};
+    const j=await res.json().catch(()=>null);
+    const text=j&&typeof j.text==='string'?j.text.trim():'';
+    if(!text)throw {code:'empty_completion',message:'empty'};
+    if(opts.onText)opts.onText({text,delta:text});
+    return {text,truncated:false,modelTierApplied:'default'};
+  };
+}
+let aiFn=null,aiReady=false,aiDead=false;
+const aiOn=()=>!!aiFn&&!aiDead;
+const AI_ERR={not_granted:"Jing needs your permission to use Claude, and it's switched off for this visit. Reload the page to be asked again.",rate_limited:"Jing needs a short rest. Try again in a little while.",session_expired:"Please sign in to Claude again, then retry.",sampling_disabled:"Claude isn't available on this account.",refused:"I couldn't answer that one. Try putting it another way.",empty_completion:"Nothing came back. Try again.",prompt_too_large:"That was too long for me. Try something shorter."};
+const aiMsg=e=>AI_ERR[e&&e.code]||"That didn't go through. Try again in a moment.";
+function aiFatal(e){const c=e&&e.code;if(c==='not_granted'||c==='sampling_disabled'||c==='not_declared'||c==='capability_disabled'||c==='capability_removed')aiDead=true}
+const JING_ONE="You are Jing, a warm, bright and calm companion inside a wellbeing app called Softly. You are an AI, not a therapist: never diagnose, never give medical advice, never claim to be human. Use plain, kind language. No markdown, no lists, no emojis.";
+function moodContext(withNotes){
+  const all=MOODS().filter(e=>Date.now()-e.t<7*DAY);if(!all.length)return '';
+  const tg={};all.forEach(e=>(e.tags||[]).forEach(t=>{tg[t]=(tg[t]||0)+1}));
+  const top=Object.keys(tg).sort((a,b)=>tg[b]-tg[a]).slice(0,5);
+  const last=all.slice().sort((a,b)=>b.t-a.t)[0];
+  let c=`Last 7 days: ${all.length} check-ins, average mood ${avg(all.map(e=>e.mood)).toFixed(1)} out of 5 (1 heavy, 5 bright). Common tags: ${top.join(', ')||'none'}. Latest check-in: ${MOODNAME[last.mood]}.`;
+  if(withNotes){const n=all.filter(e=>e.note).sort((a,b)=>b.t-a.t).slice(0,5).map(e=>`"${e.note.slice(0,140)}"`);if(n.length)c+=` Their own recent notes: ${n.join('; ')}.`}
+  return c;
+}
+function jingRules(){
+  const ctx=S.share?moodContext(false):'';
+  return `You are Jing, a warm, bright and calm supportive companion inside a wellbeing app called Softly. The person may call you their therapist. Gently be clear, once and briefly if it comes up, that you are an AI companion and not a licensed therapist, and that you can't replace one.
+How you talk: short replies of 2 to 5 sentences, plain friendly language, no markdown, no lists, no emojis. First reflect back what you heard, then, only if it fits, offer one small idea or ask one gentle question. Never ask more than one question at a time. Avoid toxic positivity and avoid lecturing.
+What you can use: active listening, validation, gentle CBT-style questions (what is the thought, what supports it, what is a kinder true version), grounding, breathing, small behavioural steps, noticing wins. You never diagnose, never advise on medication, and never give methods or details of self-harm.
+Safety: if the person mentions wanting to die, hurting themselves, or being in danger, respond with calm, warmth and care. Tell them they deserve support from a real person right now, encourage contacting emergency services or a free helpline (the app shows ones for their region), and stay with them kindly. Don't pile on questions.
+It is currently ${PERIODS[period()].label.toLowerCase()} for them. The app region is ${REG[region()].name}.`+(ctx?`\nThe person chose to share their recent check-ins with you: ${ctx}`:'');
+}
+
+/* ----- talk (Jing) ----- */
+const JING_SVG=`<svg viewBox="0 0 46 46" aria-hidden="true"><defs><radialGradient id="jg" cx=".34" cy=".28" r=".85"><stop offset="0" stop-color="#fff"/><stop offset=".36" stop-color="#C6E4FF"/><stop offset="1" stop-color="#A99BFF"/></radialGradient></defs><circle cx="23" cy="23" r="19" fill="url(#jg)"/><circle cx="17.500" cy="22" r="2" fill="#3A3F7A"/><circle cx="28.500" cy="22" r="2" fill="#3A3F7A"/><path d="M18 28q5 4.500 10 0" stroke="#3A3F7A" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`;
+const STARTERS=["I had a rough day","I can't stop overthinking","I want to share something good","Help me wind down for sleep"];
+let chatBusy=false,chatCtl=null;
+function msgHTML(m){return `<div class="msg ${m.role==='user'?'me':'ai'}">${esc(m.content)}</div>`}
+function talkHTML(){
+  let h=`<div class="chathead"><div class="jing">${JING_SVG}</div><div><h2>Talk with Jing</h2><p class="muted small">An AI companion. Not a licensed therapist, and not for emergencies.</p></div></div>`;
+  if(!aiReady)return h+`<section class="card"><p class="muted">Waking Jing up…</p></section>`;
+  if(!aiOn())return h+`<section class="card stack"><h3>Jing is resting</h3><p class="muted">Jing works inside Claude, or on a copy of Softly that has its own AI connection set up. Everything else in Softly works without it.</p><div class="row"><button class="btn" data-a="go2" data-v="calm" data-s="breathe">Breathe instead</button><button class="btn ghost" data-a="support">Support and helplines</button></div></section>`;
+  h+=`<div class="chatlog" id="chatLog">${S.chat.map(msgHTML).join('')}</div>`;
+  if(!S.chat.length)h+=`<section class="card stack" id="starters"><p>Hi, I'm Jing. Tell me what's on your mind, or start with one of these.</p><div class="row">${STARTERS.map(t=>`<button class="chip" data-a="chatStart" data-v="${esc(t)}">${esc(t)}</button>`).join('')}</div></section>`;
+  h+=`<label class="row small muted" style="gap:8px;align-items:flex-start"><input type="checkbox" id="shareCtx" data-in="share" ${S.share?'checked':''} style="margin-top:3px"><span>Let Jing see a summary of my last 7 days of check-ins. Off by default. Your notes are never sent.</span></label>
+  <div class="composer"><textarea id="chatIn" rows="1" maxlength="1000" placeholder="Message Jing" aria-label="Message Jing"></textarea><button class="btn" data-a="chatSend" id="chatBtn">Send</button></div>
+  ${S.chat.length?`<div style="text-align:center"><button class="link" data-a="chatClear">Clear this conversation</button></div>`:''}`;
+  return h;
+}
+function mountTalk(){const l=$('#chatLog');if(l&&S.chat.length)setTimeout(()=>{const k=l.lastElementChild;if(k)k.scrollIntoView({block:'end'})},30)}
+function chatScroll(){const l=$('#chatLog');if(l&&l.lastElementChild)l.lastElementChild.scrollIntoView({block:'end',behavior:'smooth'})}
+function setChatBtn(){const b=$('#chatBtn');if(b){b.textContent=chatBusy?'Stop':'Send';b.classList.toggle('ghost',chatBusy)}}
+async function sendChat(text){
+  text=(text||'').trim();if(!text||chatBusy||!aiOn())return;
+  const log=$('#chatLog');if(!log)return;
+  const st=$('#starters');if(st)st.remove();
+  const ta=$('#chatIn');if(ta){ta.value='';ta.style.height=''}
+  S.chat.push({role:'user',content:text.slice(0,1000),t:Date.now()});if(S.chat.length>40)S.chat=S.chat.slice(-40);save();
+  log.insertAdjacentHTML('beforeend',msgHTML({role:'user',content:text}));
+  if(CRISIS.test(text))log.insertAdjacentHTML('beforeend',`<div class="alert stack"><span><b>I'm really glad you told me.</b> You deserve support from a real person right now.</span><button class="btn small" data-a="support">See people who can talk now</button></div>`);
+  const node=document.createElement('div');node.className='msg ai';node.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';log.appendChild(node);
+  chatBusy=true;chatCtl=new AbortController();setChatBtn();chatScroll();
+  const turns=S.chat.slice(-20).map(m=>({role:m.role,content:m.content}));
+  while(turns.length&&turns[0].role!=='user')turns.shift();
+  let got=false;
+  try{
+    const r=await aiFn([{role:'user',content:jingRules()}].concat(turns),{cache:false,modelTier:'default',effort:'low',signal:chatCtl.signal,onText:({text:t})=>{got=true;node.textContent=t;chatScroll()}});
+    node.textContent=r.text;S.chat.push({role:'assistant',content:r.text,t:Date.now()});save();
+  }catch(e){
+    aiFatal(e);
+    if(e&&e.text){node.textContent=e.text;S.chat.push({role:'assistant',content:e.text,t:Date.now()});save()}
+    else if(e&&e.code==='cancelled')node.remove();
+    else{node.className='msg ai err';node.textContent=aiMsg(e)}
+  }finally{chatBusy=false;chatCtl=null;setChatBtn();chatScroll()}
+}
+
+/* ----- endless quotes ----- */
+let curQuote=null,quoteBusy=false;
+function currentQuote(){const p=period();return curQuote&&curQuote.p===p?curQuote.text:quoteFor(p)}
+async function newQuote(){
+  if(quoteBusy)return;
+  if(!aiOn()){qOff++;curQuote=null;render(true);return}
+  quoteBusy=true;render(true);
+  const p=period(),hist=(S.qHist||[]).slice(-15);
+  const ctx=S.share?moodContext(false):'';
+  const prompt=`Write one brand-new, original line of gentle encouragement for someone in the ${PERIODS[p].label.toLowerCase()}. Warm, bright and hopeful. At most 24 words. No quotation marks, no attribution, no emojis, no hashtags. Do not reuse the ideas or phrases of these earlier lines:\n${hist.map(x=>'- '+x).join('\n')||'(none yet)'}\n${ctx?`Context about the reader, to be gentle with: ${ctx}\n`:''}Reply with only the line.`;
+  try{
+    const r=await aiFn(prompt,{modelTier:'quick',cache:false});
+    let t=r.text.trim().split('\n')[0].replace(/^["“'‘]+|["”'’]+$/g,'').slice(0,200);
+    if(t.length<8)throw {code:'empty_completion'};
+    curQuote={p,text:t};S.qHist=(S.qHist||[]).concat(t).slice(-80);save();
+  }catch(e){aiFatal(e);qOff++;curQuote=null;toast(e&&e.code==='rate_limited'?'Taking a breather, here is a saved line':'Here is one from the collection')}
+  finally{quoteBusy=false;render(true)}
+}
+
+/* ----- other AI touches ----- */
+async function streamInto(box,prompt,opts){
+  box.innerHTML='<div class="note"><span class="typing"><i></i><i></i><i></i></span></div>';
+  const note=box.firstChild;
+  try{
+    const r=await aiFn(prompt,Object.assign({cache:false,onText:({text})=>{note.textContent=text}},opts||{}));
+    note.textContent=r.text;return true;
+  }catch(e){aiFatal(e);if(e&&e.text){note.textContent=e.text}else{box.innerHTML=`<div class="note">${esc(aiMsg(e))}</div>`}return false}
+}
+async function ciThoughts(btn){
+  if(!aiOn()||!ci)return;btn.disabled=true;
+  const box=$('#ciAI');
+  const prompt=`${JING_ONE}\nThe person just checked in. Mood: ${MOODNAME[ci.mood]} (${ci.mood} out of 5). Tags: ${ci.tags.join(', ')||'none'}. What they wrote: "${(ci.note||'').slice(0,300)||'nothing'}". Reply in 2 to 3 warm sentences that acknowledge how they feel, then one tiny, specific suggestion for the next hour. If what they wrote suggests they may be unsafe, gently encourage reaching out to a real person or a helpline instead.`;
+  await streamInto(box,prompt,{modelTier:'quick'});btn.remove();
+}
+async function weekReflect(btn){
+  if(!aiOn())return;btn.disabled=true;const st=weekStats();
+  if(!st.cur.length){$('#weekAI').innerHTML='<div class="note">Add a few check-ins first, then Jing can reflect on your week.</div>';btn.disabled=false;return}
+  const facts=[`${st.cur.length} check-ins on ${st.days} of 7 days`,`average mood ${st.avgCur.toFixed(1)} out of 5`,st.prev.length?`previous week average ${st.avgPrev.toFixed(1)}`:'no previous week yet',st.best?`best day ${fmtDay(st.best.t)}`:'',st.hard?`toughest day ${fmtDay(st.hard.t)}`:'',st.lift?`tag "${st.lift.t}" went with higher moods`:'',st.drag?`tag "${st.drag.t}" went with lower moods`:'',`common tags: ${st.top.map(x=>x.t).join(', ')||'none'}`].filter(Boolean).join('; ');
+  const notes=st.cur.filter(e=>e.note).slice(-6).map(e=>`"${e.note.slice(0,140)}"`).join('; ');
+  const prompt=`${JING_ONE}\nWrite a kind reflection on this person's week in 4 to 5 sentences: what stood out, one thing they did well, and one small experiment for next week. Be specific, not generic, and never judge a hard day. Facts: ${facts}.${notes?` Some of their own notes: ${notes}.`:''}`;
+  await streamInto($('#weekAI'),prompt,{});btn.disabled=false;btn.textContent='Reflect again';
+}
+async function jarIdea(btn){
+  if(!aiOn())return;btn.disabled=true;
+  const box=$('#jarIdea');box.textContent='Thinking of one…';
+  try{
+    const r=await aiFn(`Give one tiny, specific, cheerful prompt (at most 16 words) that helps someone notice something good in their day, for the ${PERIODS[period()].label.toLowerCase()}. It should be different from: "${$('#jarIn')?$('#jarIn').placeholder:''}". Reply with only the prompt, no quotation marks.`,{modelTier:'quick',cache:false});
+    const t=r.text.trim().split('\n')[0].replace(/^["“]+|["”]+$/g,'').slice(0,140);
+    box.textContent=t;const i=$('#jarIn');if(i)i.placeholder=t;
+  }catch(e){aiFatal(e);box.textContent=aiMsg(e)}
+  btn.disabled=false;
+}
+
+/* ---------- wall (shared, anonymous) ---------- */
+const KINDS=[['warm','Sending warmth'],['alone',"You're not alone"],['proud','Proud of you'],['same','Same here'],['time','Take your time']];
+const TOPICS=[['good','One good thing'],['heavy','Something heavy'],['thanks','Thankful for']];
+const ADJ=['Quiet','Gentle','Calm','Warm','Bright','Soft','Steady','Kind','Still','Jing','Misty','Mellow'];
+const NOUN=['Heron','Willow','Otter','Fern','Robin','Lantern','Meadow','Pebble','Comet','Moss','Finch','Harbour'];
+const alias=u=>{const h=hash('a'+u);return ADJ[h%12]+' '+NOUN[(h>>>4)%12]};
+let db=null,me=null,canWrite=null,isMod=false,capsDone=false,wallTopic='good',lastPost=0;
+const docs={wall:new Map(),reactions:new Map(),reports:new Map()};
+const subs=[];
+const queues={};
+function enqueue(key,fn){queues[key]=(queues[key]||Promise.resolve()).then(fn,fn).catch(()=>{});return queues[key]}
+
+async function initCaps(){
+  try{
+    if(!(window.claude&&window.claude.use)){capsDone=true;aiFn=AI_URL?makeRemoteAi():null;aiReady=true;if(aiFn&&curTab()==='talk'&&!chatBusy)render(true);return}
+    window.claude.use('sample').then(f=>{aiFn=f||(AI_URL?makeRemoteAi():null);aiReady=true;if(curTab()==='talk'&&!chatBusy)render(true)},()=>{aiFn=AI_URL?makeRemoteAi():null;aiReady=true;if(curTab()==='talk')render(true)});
+    const u=await window.claude.use('user');
+    if(u){try{me=await u.id()}catch(e){}try{canWrite=await u.can('data.write')}catch(e){}try{isMod=await u.canEdit()}catch(e){}}
+    db=await window.claude.use('db');
+    if(db){
+      ['wall','reactions','reports'].forEach(name=>{
+        try{
+          const un=db.collection(name).onSnapshot(snap=>{
+            const m=new Map();snap.docs.forEach(d=>{if(d.exists)m.set(d.id,d.data())});
+            docs[name]=m;if(curTab()==='wall')renderWallList();
+          },err=>{if(curTab()==='wall')renderWallList()});
+          subs.push(un);
+        }catch(e){}
+      });
+    }
+  }catch(e){}
+  capsDone=true;
+  if(curTab()==='wall')render(true);
+}
+function allPosts(){
+  const out=[];
+  docs.wall.forEach((d,u)=>{(d&&d.posts||[]).forEach(p=>{if(p&&typeof p.text==='string')out.push({p,u})})});
+  return out.sort((a,b)=>b.p.t-a.p.t);
+}
+function reportCount(id){let n=0;docs.reports.forEach(d=>{if(d&&Array.isArray(d.ids)&&d.ids.indexOf(id)>=0)n++});return n}
+function reactCounts(id){const c={};docs.reactions.forEach(d=>{const a=d&&d.r&&d.r[id];if(Array.isArray(a))a.forEach(k=>{c[k]=(c[k]||0)+1})});return c}
+function wallHTML(){
+  let h=`<div><h2>Encouragement wall</h2><p class="muted small">Anonymous. Share one line, and send kindness with a tap. No replies, no direct messages.</p></div>`;
+  if(!capsDone)return h+`<section class="card"><p class="muted">Opening the wall…</p></section>`;
+  if(!db||!me)return h+`<section class="card stack"><h3>The wall needs a connection</h3><p class="muted">It lights up when this page is opened while signed in to Claude, and everyone sees the same wall. Your mood log and everything else keep working without it.</p></section>`;
+  if(canWrite===false)h+=`<div class="note">You can read the wall here, but your access level doesn't allow posting or reacting.</div>`;
+  else h+=`<section class="card stack">
+    <div class="row">${TOPICS.map(([k,l])=>`<button class="chip" data-a="wallTopic" data-v="${k}" aria-pressed="${wallTopic===k}">${l}</button>`).join('')}</div>
+    <label class="lab" for="wallText" style="margin:0">${wallTopic==='good'?'What is one good thing from today?':wallTopic==='heavy'?'What feels heavy? You can leave out the details.':'What are you thankful for?'}</label>
+    <textarea id="wallText" maxlength="240" placeholder="You'll appear as ${esc(alias(me))}"></textarea>
+    <div id="wallMsg"></div>
+    <div class="row between"><span class="muted small" id="wallCount">0 / 240</span><button class="btn" data-a="wallPost">Post anonymously</button></div>
+    <p class="muted small">Leave out names, links, emails and phone numbers.</p></section>`;
+  h+=`<div id="wallList" class="stack"></div>`;
+  return h;
+}
+function mountWall(){if(db&&me)renderWallList()}
+function renderWallList(){
+  const box=$('#wallList');if(!box)return;
+  const mine=docs.reports.get(me);const myRep=(mine&&mine.ids)||[];
+  const list=allPosts().filter(x=>reportCount(x.p.id)<3&&myRep.indexOf(x.p.id)<0).slice(0,60);
+  if(!list.length){box.innerHTML=`<section class="card stack"><h3>It's quiet here</h3><p class="muted">Be the first to leave a kind word or share one good thing. Others can send warmth back with a tap.</p></section>`;return}
+  const myR=(docs.reactions.get(me)||{}).r||{};
+  box.innerHTML=list.map(({p,u})=>{
+    const c=reactCounts(p.id);const mineK=myR[p.id]||[];
+    const topic=(TOPICS.filter(t=>t[0]===p.tag)[0]||[0,'Shared'])[1];
+    return `<article class="card post"><div class="row between"><span class="alias">${esc(p.alias||alias(u))}${u===me?' <span class="muted small">(you)</span>':''}</span><span class="muted small">${esc(topic)} · ${ago(p.t)==='yesterday'||Date.now()-p.t>DAY?fmtShort(p.t):fmtTime(p.t)}</span></div>
+    <p>${esc(p.text)}</p>
+    <div class="reacts">${KINDS.map(([k,l])=>`<button class="react" data-a="react" data-v="${esc(p.id)}" data-k="${k}" aria-pressed="${mineK.indexOf(k)>=0}" ${canWrite===false?'disabled':''}>${l}${c[k]?` · ${c[k]}`:''}</button>`).join('')}</div>
+    <div class="row">${u!==me&&canWrite!==false?`<button class="link" data-a="report" data-v="${esc(p.id)}">Report</button>`:''}${u===me?`<button class="link" data-a="delPost" data-v="${esc(p.id)}" data-u="${esc(u)}">Delete my post</button>`:''}${isMod&&u!==me?`<button class="link" data-a="delPost" data-v="${esc(p.id)}" data-u="${esc(u)}">Remove (moderator)</button>`:''}</div></article>`;
+  }).join('');
+}
+function wallPost(){
+  const ta=$('#wallText'),msg=$('#wallMsg');if(!ta)return;
+  const text=ta.value.trim();
+  const say=(h)=>{msg.innerHTML=h};
+  if(text.length<3){say('<div class="note">Write a few words first.</div>');return}
+  if(CRISIS.test(text)){say(`<div class="alert stack"><span><b>That sounds really heavy.</b> A post on a wall isn't enough for this, and you deserve real support. I haven't posted it.</span><button class="btn small" data-a="support">See ways to reach someone</button></div>`);return}
+  if(/https?:\/\/|www\.|\S+@\S+\.\S+|\+?\d[\d\s().-]{7,}\d/i.test(text)){say('<div class="note">To stay anonymous, please leave out links, emails and phone numbers.</div>');return}
+  if(Date.now()-lastPost<30000){say('<div class="note">Give it a moment before posting again.</div>');return}
+  lastPost=Date.now();
+  const p={id:newId(),text,tag:wallTopic,t:Date.now(),alias:alias(me)};
+  ta.value='';const c=$('#wallCount');if(c)c.textContent='0 / 240';
+  say('<div class="note">Posted. Thank you for sharing.</div>');
+  enqueue('wall',async()=>{
+    const cur=(docs.wall.get(me)||{}).posts||[];
+    try{await db.doc('wall/'+me).set({posts:[p].concat(cur).slice(0,30)})}catch(e){toast("Couldn't post just now");lastPost=0}
+  });
+}
+function reactTo(id,k){
+  enqueue('react',async()=>{
+    const cur=Object.assign({},(docs.reactions.get(me)||{}).r||{});
+    let a=(cur[id]||[]).slice();const i=a.indexOf(k);i>=0?a.splice(i,1):a.push(k);
+    if(a.length)cur[id]=a;else delete cur[id];
+    const keys=Object.keys(cur);if(keys.length>400)delete cur[keys[0]];
+    try{await db.doc('reactions/'+me).set({r:cur})}catch(e){toast("Couldn't send that just now")}
+  });
+}
+function reportPost(id){
+  enqueue('report',async()=>{
+    const cur=((docs.reports.get(me)||{}).ids||[]).slice();if(cur.indexOf(id)<0)cur.push(id);
+    try{await db.doc('reports/'+me).set({ids:cur.slice(-200)});toast('Reported. Thank you for looking out.')}catch(e){toast("Couldn't report just now")}
+  });
+}
+function deletePost(id,u){
+  enqueue('wall',async()=>{
+    const cur=((docs.wall.get(u)||{}).posts||[]).filter(p=>p.id!==id);
+    try{await db.doc('wall/'+u).set({posts:cur});toast('Removed')}catch(e){toast("Couldn't remove that")}
+  });
+}
+
+/* ---------- actions ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;
+  const a=b.dataset.a,v=b.dataset.v;
+  switch(a){
+    case 'go':go(v);break;
+    case 'orbTap':b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');break;
+    case 'chatSend':if(chatBusy){if(chatCtl)chatCtl.abort()}else{const t=$('#chatIn');if(t)sendChat(t.value)}break;
+    case 'chatStart':sendChat(v);break;
+    case 'chatClear':S.chat=[];save();render(true);break;
+    case 'ciThoughts':ciThoughts(b);break;
+    case 'weekReflect':weekReflect(b);break;
+    case 'jarIdea':jarIdea(b);break;
+    case 'unlike':S.liked.splice(+v,1);save();render(true);break;
+    case 'logo':{b.classList.add('spin');setTimeout(()=>b.classList.remove('spin'),900);toast(['You are doing great','Breathe. You are here.','Small steps count','Be gentle with yourself'][Math.floor(Math.random()*4)]);break}
+    case 'go2':go(v,b.dataset.s);break;
+    case 'support':supportOpen();break;
+    case 'closeSheet':closeSheet();break;
+    case 'like':{const q=currentQuote();const i=S.liked.indexOf(q);i>=0?S.liked.splice(i,1):S.liked.push(q);save();render(true);break}
+    case 'moreQuote':newQuote();break;
+    case 'quickMood':promptOn=false;openCheckin({mood:+v});render(true);break;
+    case 'dismissPrompt':promptOn=false;render(true);break;
+    case 'openEvening':eveOn=false;openCheckin({kind:'evening'});render(true);break;
+    case 'dismissEve':eveOn=false;S.eve[dkey(Date.now())]=1;save();render(true);break;
+    case 'openCheckin':openCheckin();break;
+    case 'pickMood':ci.mood=+v;drawCheckin(false);break;
+    case 'tag':{const i=ci.tags.indexOf(v);i>=0?ci.tags.splice(i,1):ci.tags.push(v);drawCheckin(false);break}
+    case 'saveCheckin':if(ci&&ci.mood)saveCheckin();break;
+    case 'sheetTo':closeSheet();go('calm',v);break;
+    case 'delEntry':S.moods=S.moods.filter(m=>m.id!==v);save();render(true);break;
+    case 'calmOpen':calmSub=v;render(false);break;
+    case 'calmBack':calmSub=null;render(false);break;
+    case 'bToggle':breathToggle(b.closest('.breathbox'),b);break;
+    case 'supTab':stopAll();supTab=v;drawSupport(false);break;
+    case 'groundNext':groundStep++;$('#supBody').innerHTML=supBody();break;
+    case 'groundAgain':groundStep=0;$('#supBody').innerHTML=supBody();break;
+    case 'copy':copy(v,'Number copied');break;
+    case 'pairFlip':pairFlip(+v);break;
+    case 'pairsNew':startPairs();break;
+    case 'release':doRelease();break;
+    case 'jarAdd':jarAdd();break;
+    case 'jarDel':S.jar.splice(+v,1);save();render(true);break;
+    case 'toggleDemo':demoOn=!demoOn;render(true);break;
+    case 'export':doExport();break;
+    case 'wipeAsk':$('#wipeBox').innerHTML=`<div class="alert stack"><span>This deletes your check-ins, jar and saved contact from this device. It can't be undone.</span><div class="row"><button class="btn small" data-a="wipeDo">Yes, delete everything</button><button class="btn ghost small" data-a="wipeNo">Keep it</button></div></div>`;break;
+    case 'wipeNo':$('#wipeBox').innerHTML=`<button class="link" data-a="wipeAsk">Delete everything on this device</button>`;break;
+    case 'wipeDo':S=def();save();demoOn=false;promptOn=false;toast('Everything deleted');render(true);break;
+    case 'wallTopic':wallTopic=v;{const t=$('#wallText'),keep=t?t.value:'';render(true);const t2=$('#wallText');if(t2)t2.value=keep}break;
+    case 'wallPost':wallPost();break;
+    case 'react':if(db&&me)reactTo(v,b.dataset.k);break;
+    case 'report':if(db&&me)reportPost(v);break;
+    case 'delPost':if(db&&me)deletePost(v,b.dataset.u);break;
+  }
+});
+document.addEventListener('input',e=>{
+  const t=e.target,k=t.dataset&&t.dataset.in;
+  if(t.id==='wallText'){const c=$('#wallCount');if(c)c.textContent=t.value.length+' / 240';return}
+  if(t.id==='chatIn'){t.style.height='auto';t.style.height=Math.min(120,t.scrollHeight)+'px';return}
+  if(!k)return;
+  if(k==='share'){S.share=t.checked;save();return}
+  if(k==='note'&&ci)ci.note=t.value;
+  else if(k==='good'&&ci)ci.good=t.value;
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.in==='region'){S.region=t.value;save();drawSupport(false)}
+  if(t.dataset&&t.dataset.in==='share'){S.share=t.checked;save()}
+});
+
+function doRelease(){
+  const ta=$('#relText');if(!ta)return;const text=ta.value.trim();const m=$('#relMsg');
+  if(!text){m.innerHTML='<div class="note">Write something first.</div>';return}
+  const f=document.createElement('div');f.className='float';f.style.top=(window.innerHeight*.45)+'px';f.textContent=text;f.style.color='var(--ink)';
+  document.body.appendChild(f);setTimeout(()=>f.remove(),reduceMotion()?300:4600);
+  ta.value='';
+  m.innerHTML=CRISIS.test(text)?`<div class="alert stack"><span>It's released. But what you wrote sounds really heavy, and a real person can help.</span><button class="btn small" data-a="support">See ways to reach someone</button></div>`:'<div class="note">Released. It wasn\'t saved anywhere.</div>';
+}
+function jarAdd(){
+  const i=$('#jarIn');if(!i)return;const t=i.value.trim();if(!t)return;
+  S.jar.push({t:Date.now(),text:t.slice(0,90)});save();render(true);
+}
+async function doExport(){
+  const data=JSON.stringify({exportedAt:new Date().toISOString(),moods:S.moods,jar:S.jar},null,2);
+  try{
+    const d=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+    if(!d){copy(data,'Your data was copied instead');return}
+    await d.save({filename:'softly-data.json',data});toast('Saved');
+  }catch(e){if(!(e&&e.code==='declined'))copy(data,'Your data was copied instead')}
+}
+
+/* ---------- joy: confetti, tilt, living background ---------- */
+function confetti(){
+  if(reduceMotion())return;
+  const cols=['#FF9E7D','#FFC857','#7FD6A6','#6EC6F0','#A98BFF','#FF8FBE'];
+  const box=document.createElement('div');box.className='confetti';
+  for(let i=0;i<28;i++){const e=document.createElement('i');
+    e.style.cssText=`left:${50+(Math.random()-.5)*30}%;background:${cols[i%6]};--dx:${((Math.random()-.5)*340).toFixed(0)}px;--dy:${(-(120+Math.random()*260)).toFixed(0)}px;--r:${(Math.random()*720-360).toFixed(0)}deg;animation-delay:${(Math.random()*.15).toFixed(2)}s`;
+    box.appendChild(e)}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),2300);
+}
+let pend=false,pmx=0,pmy=0;
+document.addEventListener('pointermove',e=>{
+  pmx=e.clientX;pmy=e.clientY;
+  const sc=e.target.closest&&e.target.closest('.card,.tile,.hero');
+  if(sc){const bb=sc.getBoundingClientRect();sc.style.setProperty('--mx',(e.clientX-bb.left)+'px');sc.style.setProperty('--my',(e.clientY-bb.top)+'px')}
+  if(!pend){pend=true;requestAnimationFrame(()=>{pend=false;const r=document.documentElement.style;
+    r.setProperty('--px',((pmx/innerWidth-.5)*2).toFixed(3));r.setProperty('--py',((pmy/innerHeight-.5)*2).toFixed(3))})}
+});
+
+/* ---------- calm water (glowing ripples) ---------- */
+function startRipples(){
+  const cv=$('#ripCanvas');if(!cv)return;
+  const ctx=cv.getContext('2d');
+  let W=0,H=0,raf=0,last=0,down=false,lx=-999,ly=-999,lt=0,auto=1.2,hue=200,ac=null;
+  const rips=[],motes=[],SCALE=[261.63,293.66,329.63,392,440,523.25,587.33,659.25];
+  function size(){const r=cv.getBoundingClientRect(),dpr=window.devicePixelRatio||1;W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+  size();
+  function tone(x){
+    const on=$('#ripSound');if(!on||!on.checked)return;
+    try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();
+      o.type='sine';o.frequency.value=SCALE[Math.max(0,Math.min(7,Math.floor(x/W*8)))];
+      g.gain.setValueAtTime(.0001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.07,ac.currentTime+.03);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+1.4);
+      o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+1.5)}catch(e){}
+  }
+  function drop(x,y,quiet){hue=(hue+27)%360;rips.push({x,y,t:0,h:hue});if(rips.length>26)rips.shift();if(!quiet)tone(x)}
+  for(let i=0;i<16;i++)motes.push({x:Math.random()*W,y:Math.random()*H,r:1.4+Math.random()*2.4,ph:Math.random()*6,sp:8+Math.random()*12});
+  drop(W*.3,H*.4,true);rips[0].t=1.2;drop(W*.7,H*.58,true);rips[1].t=.5;
+  function frame(now){
+    const dt=Math.min(.05,(now-last)/1000||0);last=now;auto-=dt;
+    if(auto<=0){auto=1.8+Math.random()*2.2;drop(W*(.15+Math.random()*.7),H*(.15+Math.random()*.7),true)}
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#fff';
+    motes.forEach(m=>{m.ph+=dt;m.y-=m.sp*dt*.35;if(m.y<-6){m.y=H+6;m.x=Math.random()*W}ctx.globalAlpha=.35+.35*Math.sin(m.ph*1.6);ctx.shadowColor='rgba(150,170,255,.9)';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(m.x+Math.sin(m.ph)*7,m.y,m.r,0,7);ctx.fill()});
+    for(let i=rips.length-1;i>=0;i--){
+      const r=rips[i];r.t+=dt;if(r.t>3){rips.splice(i,1);continue}
+      for(let k=0;k<3;k++){
+        const rad=r.t*68-k*15;if(rad<=0)continue;
+        ctx.globalAlpha=Math.max(0,1-r.t/3)*(1-k*.3);ctx.lineWidth=3.2-k*.8;
+        ctx.strokeStyle='hsl('+((r.h+k*18)%360)+' 92% 62%)';ctx.shadowColor='hsl('+r.h+' 95% 66%)';ctx.shadowBlur=16;
+        ctx.beginPath();ctx.arc(r.x,r.y,rad,0,7);ctx.stroke();
+      }
+    }
+    ctx.shadowBlur=0;ctx.globalAlpha=1;raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  function pos(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]}
+  const dn=e=>{down=true;const [x,y]=pos(e);lx=x;ly=y;lt=performance.now();drop(x,y);try{cv.setPointerCapture(e.pointerId)}catch(_){}};
+  const mv=e=>{if(!down)return;const [x,y]=pos(e),n=performance.now();if(Math.hypot(x-lx,y-ly)>52||n-lt>180){lx=x;ly=y;lt=n;drop(x,y)}};
+  const up=()=>{down=false};
+  cv.addEventListener('pointerdown',dn);cv.addEventListener('pointermove',mv);cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  window.addEventListener('resize',size);
+  stoppers.add(()=>{cancelAnimationFrame(raf);cv.removeEventListener('pointerdown',dn);cv.removeEventListener('pointermove',mv);cv.removeEventListener('pointerup',up);cv.removeEventListener('pointercancel',up);window.removeEventListener('resize',size);if(ac){try{ac.close()}catch(e){}}});
+}
+
+/* ---------- start ---------- */
+render(false);
+initCaps();
+// a gentle, random nudge while the app stays open
+setTimeout(()=>{
+  const now=Date.now();
+  if(!promptOn&&curTab()==='home'&&now-S.lastPrompt>3*36e5&&!MOODS().some(e=>now-e.t<2*36e5)){promptOn=true;S.lastPrompt=now;save();render(true)}
+},(8+Math.random()*12)*60000);
+})();
+</script>
+
+</body>
+</html>

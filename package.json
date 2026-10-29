@@ -1,0 +1,8 @@
+{
+  "name": "softly",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Softly: a calm, bright wellbeing app with an AI companion (Jing).",
+  "engines": { "node": ">=20" }
+}
